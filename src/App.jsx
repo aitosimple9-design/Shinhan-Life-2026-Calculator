@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { CalculatorProvider, useCalculatorState, useCalculatorDispatch } from './context/CalculatorContext.jsx';
+import { AuthProvider, useAuth } from './context/AuthContext.jsx';
 import { usePermissions } from './hooks/usePermissions.js';
 import { useDarkMode } from './hooks/useDarkMode.js';
 import { useCalculator } from './hooks/useCalculator.js';
@@ -15,7 +16,11 @@ import FypSummaryCard from './components/common/FypSummaryCard.jsx';
 import GrowthChart from './components/common/GrowthChart.jsx';
 import { ExtraBonusList, ExtraBonusPhoneRows } from './components/common/ExtraBonusList.jsx';
 import { formatCurrencyPhone } from './utils/format.js';
+import LoginPage from './pages/LoginPage.jsx';
+import ChangePasswordPage from './pages/ChangePasswordPage.jsx';
 import './App.css';
+
+const PreviewPage = React.lazy(() => import('./pages/PreviewPage.jsx'));
 
 // ── Tab definitions ────────────────────────────────────────────────────────────
 const TABS = [
@@ -120,14 +125,12 @@ function AppInner() {
   // ── Perks ─────────────────────────────────────────────────────────────────
   const showPerks = isFC(role) || state.hasPersonalSales;
 
-  // ── DEV: Preview page ─────────────────────────────────────────────────────
-  if (window.location.pathname === '/previewpage') {
-    const PreviewPage = React.lazy(() => import('./pages/PreviewPage.jsx'));
-    return (
-      <React.Suspense fallback={<div className="p-8 text-slate-400">Đang tải...</div>}>
-        <PreviewPage />
-      </React.Suspense>
-    );
+  // ── Auth: đăng xuất / đổi mật khẩu ─────────────────────────────────────────
+  const { signOut } = useAuth();
+  const [showChangePassword, setShowChangePassword] = useState(false);
+
+  if (showChangePassword) {
+    return <ChangePasswordPage onDone={() => setShowChangePassword(false)} />;
   }
 
   return (
@@ -145,7 +148,7 @@ function AppInner() {
               Công cụ ước tính thu nhập &amp; phí dịch vụ Đại lý/Quản lý kinh doanh
             </p>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
             <button
               id="dark-toggle"
               aria-label="Chuyển chế độ sáng/tối"
@@ -155,6 +158,24 @@ function AppInner() {
               <i id="dm-icon-sun" className={`fa-solid fa-sun text-base transition-all duration-300${isDark ? ' hidden' : ''}`}></i>
               <i id="dm-icon-moon" className={`fa-solid fa-moon text-base transition-all duration-300${isDark ? '' : ' hidden'}`}></i>
               <span id="dm-label" className="mode-label">{isDark ? 'Chế độ Tối' : 'Chế độ Sáng'}</span>
+            </button>
+            <button
+              id="change-password-btn"
+              aria-label="Đổi mật khẩu"
+              title="Đổi mật khẩu"
+              onClick={() => setShowChangePassword(true)}
+              className="flex items-center gap-2 px-3 py-2 min-h-[40px] rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all shadow-sm text-sm font-medium"
+            >
+              <i className="fa-solid fa-key text-base"></i>
+            </button>
+            <button
+              id="logout-btn"
+              aria-label="Đăng xuất"
+              title="Đăng xuất"
+              onClick={signOut}
+              className="flex items-center gap-2 px-3 py-2 min-h-[40px] rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-red-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all shadow-sm text-sm font-medium"
+            >
+              <i className="fa-solid fa-right-from-bracket text-base"></i>
             </button>
           </div>
         </header>
@@ -475,11 +496,63 @@ function AppInner() {
   );
 }
 
+// ── Auth gate: đăng nhập / chưa gán chức danh / đang tải ──────────────────────
+function AuthGate({ children }) {
+  const { session, profile, loading } = useAuth();
+
+  // Dev-only bypass: cho phép PreviewPage/launcher xem nhanh giao diện qua
+  // ?debugTitle= mà không cần đăng nhập thật — CHỈ hoạt động ở môi trường dev
+  // (import.meta.env.DEV === true), tự động tắt hẳn khi build production.
+  const devBypass = import.meta.env.DEV && new URLSearchParams(window.location.search).get('debugTitle');
+  if (devBypass) return children;
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-900 text-slate-400">
+        Đang tải...
+      </div>
+    );
+  }
+
+  if (!session) {
+    return <LoginPage />;
+  }
+
+  if (!profile?.role) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-900 px-4">
+        <div className="max-w-sm text-center space-y-4">
+          <i className="fa-solid fa-circle-exclamation text-amber-500 text-3xl"></i>
+          <p className="text-slate-700 dark:text-slate-200 font-medium">
+            Tài khoản chưa được gán chức danh, liên hệ quản trị viên.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  return children;
+}
+
 // ── Root export ────────────────────────────────────────────────────────────────
 export default function App() {
+  // Launcher nội bộ xem nhanh giao diện theo chức danh — không cần đăng nhập,
+  // không cần state của app chính.
+  if (window.location.pathname === '/previewpage') {
+    return (
+      <React.Suspense fallback={<div className="p-8 text-slate-400">Đang tải...</div>}>
+        <PreviewPage />
+      </React.Suspense>
+    );
+  }
+
   return (
-    <CalculatorProvider>
-      <AppInner />
-    </CalculatorProvider>
+    <AuthProvider>
+      <CalculatorProvider>
+        <AuthGate>
+          <AppInner />
+        </AuthGate>
+      </CalculatorProvider>
+    </AuthProvider>
   );
 }
