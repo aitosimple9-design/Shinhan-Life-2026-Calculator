@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+/* Tailwind v4 mặc định dùng prefers-color-scheme cho biến thể dark:, nên
+   nút bấm toggle (thêm/xoá class .dark trên <html>) không có tác dụng —
+   ép dark: chạy theo class .dark thay vì theo cài đặt hệ điều hành. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* ============================================
    SCROLLBARS
    ============================================ */
