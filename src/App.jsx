@@ -1,9 +1,10 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { CalculatorProvider, useCalculatorState, useCalculatorDispatch } from './context/CalculatorContext.jsx';
 import { usePermissions } from './hooks/usePermissions.js';
 import { useDarkMode } from './hooks/useDarkMode.js';
 import { useCalculator } from './hooks/useCalculator.js';
 import { useAnimatedNumber } from './hooks/useAnimatedNumber.js';
+import { useUrlInit } from './hooks/useUrlInit.js';
 import { isFC, isSL, isSM } from './logic/role-groups.js';
 import FcLayout from './components/layouts/FcLayout.jsx';
 import SlLayout from './components/layouts/SlLayout.jsx';
@@ -67,47 +68,7 @@ function AppInner() {
   const dispatch1 = (key, value) => dispatch({ type: 'UPDATE_STATE', payload: { key, value } });
 
   // ── Initialise from URL params (one-time on mount) ─────────────────────────
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-
-    // Dark mode
-    if (params.get('dark') === '1') {
-      if (!isDark) toggleDark();
-    }
-
-    // Determine starting role (respects permissions)
-    let targetRole = params.get('role');
-    if (perms.allowedRoles.length > 0) {
-      if (targetRole && !perms.allowedRoles.includes(targetRole)) {
-        console.warn(`[Permissions] Role "${targetRole}" không được phép cho "${perms.userTitle}". Fallback.`);
-        targetRole = perms.defaultRole;
-      } else if (!targetRole) {
-        targetRole = perms.defaultRole;
-      }
-    }
-
-    // Find which tab that role belongs to
-    const targetTab = TABS.find(t => t.roles.includes(targetRole));
-    if (targetTab && perms.allowedTabs.includes(targetTab.id)) {
-      setActiveTab(targetTab.id);
-      dispatch1('role', targetRole);
-    } else if (perms.allowedTabs.length > 0) {
-      const firstTab = TABS.find(t => perms.allowedTabs.includes(t.id));
-      if (firstTab) {
-        setActiveTab(firstTab.id);
-        dispatch1('role', perms.allowedRoles[0]);
-      }
-    } else {
-      // No permissions → show all
-      setActiveTab('agent');
-      dispatch1('role', 'FC');
-    }
-
-    // Personal sales
-    if (params.get('personal') === '1') {
-      dispatch1('hasPersonalSales', true);
-    }
-  }, []);
+  useUrlInit(perms, dispatch, toggleDark, isDark, setActiveTab);
 
   // ── Tab click ──────────────────────────────────────────────────────────────
   const handleTabClick = useCallback((tabId) => {
