@@ -192,23 +192,26 @@ function AppInner() {
 
             {/* Card 1: Chọn Chức Danh */}
             <div className="card-base">
-              <h2 className="card-title">
-                <i className="fa-solid fa-user-tie text-teal-600 dark:text-teal-400"></i> Chọn Chức Danh
-              </h2>
-
-              {/* Tab Bar */}
-              <div className="flex bg-slate-100 dark:bg-slate-900/60 backdrop-blur-md border border-slate-200 dark:border-white/[0.05] p-1 rounded-2xl gap-1 mb-6" id="role-tabs">
-                {visibleTabs.map(tab => (
-                  <button
-                    key={tab.id}
-                    data-tab={tab.id}
-                    onClick={() => handleTabClick(tab.id)}
-                    className={`role-tab flex-1 py-2 px-3 rounded-xl text-sm transition-all ${activeTab === tab.id ? 'active' : ''}`}
-                  >
-                    <i className={`fa-solid ${tab.icon} mr-1`}></i> {tab.label}
-                  </button>
-                ))}
-              </div>
+              {/* Tab Bar — chỉ hiện khi tài khoản có từ 2 nhóm chức danh trở lên */}
+              {visibleTabs.length > 1 && (
+                <>
+                  <h2 className="card-title">
+                    <i className="fa-solid fa-user-tie text-teal-600 dark:text-teal-400"></i> Chọn Chức Danh
+                  </h2>
+                  <div className="flex bg-slate-100 dark:bg-slate-900/60 backdrop-blur-md border border-slate-200 dark:border-white/[0.05] p-1 rounded-2xl gap-1 mb-6" id="role-tabs">
+                    {visibleTabs.map(tab => (
+                      <button
+                        key={tab.id}
+                        data-tab={tab.id}
+                        onClick={() => handleTabClick(tab.id)}
+                        className={`role-tab flex-1 py-2 px-3 rounded-xl text-sm transition-all ${activeTab === tab.id ? 'active' : ''}`}
+                      >
+                        <i className={`fa-solid ${tab.icon} mr-1`}></i> {tab.label}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
 
               {/* Tab: Agent — Chức Danh Của Bạn (badge + nút kích hoạt Star FC) */}
               {activeTab === 'agent' && (
