@@ -247,7 +247,9 @@ export default function FcLayout() {
           <div>
             <label className="block text-xs text-slate-500 mb-1">Tỷ lệ Hoa hồng (%)</label>
             <input
-              type="number" id="fyc-rate" className="input-base" value={state.fycRate}
+              type="number" id="fyc-rate"
+              className="w-full bg-teal-50 dark:bg-teal-500/10 border-2 border-teal-200 dark:border-teal-500/30 text-teal-700 dark:text-teal-300 text-base font-extrabold rounded-lg px-3 py-2.5 outline-none focus:ring-4 focus:ring-teal-500/40 focus:border-teal-400 transition-all duration-200 ease-out"
+              value={state.fycRate}
               onChange={e => dispatch1('fycRate', Number(e.target.value) || 0)}
             />
           </div>
