@@ -34,25 +34,31 @@ export default function K2Selector() {
 
   return (
     <div>
-      <label className="block text-slate-400 text-sm font-medium mb-1">Hệ số K2</label>
-      <input
-        type="number"
-        min="0"
-        max="150"
-        step="1"
-        className="w-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 text-sm rounded-lg focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 focus:outline-none block p-2.5 transition-all duration-200 ease-out"
-        value={typeof curVal === 'number' ? curVal : ''}
-        onChange={(e) => {
-          let v = Number(e.target.value);
-          if (!Number.isFinite(v) || v < 0) v = 0;
-          if (v > 150) v = 150;
-          dispatch({ type: 'UPDATE_STATE', payload: { key: 'k2Bracket', value: v } });
-        }}
-      />
-      <p className="text-xs text-slate-500 mt-1.5 leading-relaxed">{subtitle}</p>
-      <div className={`mt-2 text-right text-xs font-semibold ${badgeColor}`}>
-        Hệ số K2 áp dụng: ×{coef.toFixed(2)}
+      <div className="flex items-center justify-between mb-1.5">
+        <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Hệ số K2</span>
+        <span className="text-[11px] text-slate-400 dark:text-slate-500">{subtitle}</span>
       </div>
+      <label className="flex items-center gap-1.5 w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2.5 cursor-text focus-within:ring-2 focus-within:ring-teal-500/50 focus-within:border-teal-500 transition-all duration-200 ease-out">
+        <span className="text-sm text-slate-500 dark:text-slate-400 shrink-0">K2 ≥</span>
+        <input
+          type="number"
+          min="0"
+          max="150"
+          step="1"
+          className="w-12 bg-transparent text-sm font-bold text-slate-900 dark:text-slate-100 outline-none [appearance:textfield]"
+          value={typeof curVal === 'number' ? curVal : ''}
+          onChange={(e) => {
+            let v = Number(e.target.value);
+            if (!Number.isFinite(v) || v < 0) v = 0;
+            if (v > 150) v = 150;
+            dispatch({ type: 'UPDATE_STATE', payload: { key: 'k2Bracket', value: v } });
+          }}
+        />
+        <span className="text-sm text-slate-500 dark:text-slate-400 shrink-0">%</span>
+        <span className="flex-1"></span>
+        <span className={`text-xs font-semibold shrink-0 ${badgeColor}`}>(Hệ số ×{coef.toFixed(2)})</span>
+        <i className="fa-solid fa-chevron-down text-slate-400 dark:text-slate-500 text-xs shrink-0"></i>
+      </label>
     </div>
   );
 }
