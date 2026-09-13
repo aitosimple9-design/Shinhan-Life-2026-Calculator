@@ -224,19 +224,18 @@ export default function FcLayout() {
               </div>
               <div>
                 <label className="block text-xs text-teal-700 dark:text-teal-400 font-medium mb-1">Số tháng HĐ</label>
-                <div className="flex bg-white dark:bg-slate-900 p-1 rounded-lg border border-teal-200 dark:border-teal-800/40 gap-1" id="quarter-active-months">
-                  {[{ v: 1, pct: '80%' }, { v: 2, pct: '100%' }, { v: 3, pct: '120%' }].map(({ v, pct }) => (
-                    <button
-                      key={v}
-                      type="button"
-                      onClick={() => dispatch1('quarterActiveMonths', v)}
-                      className={`flex-1 py-1.5 rounded-md text-xs font-bold transition-all duration-150 active:scale-95 ${state.quarterActiveMonths === v
-                        ? 'bg-teal-600 text-white shadow-sm'
-                        : 'text-slate-500 dark:text-slate-400 hover:bg-teal-50 dark:hover:bg-teal-900/30'}`}
-                    >
-                      {v}th ({pct})
-                    </button>
-                  ))}
+                <div className="relative">
+                  <select
+                    id="quarter-active-months"
+                    value={state.quarterActiveMonths}
+                    onChange={e => dispatch1('quarterActiveMonths', parseInt(e.target.value))}
+                    className="w-full appearance-none bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs rounded-lg border-2 border-teal-700 dark:border-teal-500 pl-3 pr-8 py-2 cursor-pointer focus:outline-none focus:ring-4 focus:ring-teal-500/40 transition-all duration-150"
+                  >
+                    <option value="1">1 tháng (80%)</option>
+                    <option value="2">2 tháng (100%)</option>
+                    <option value="3">3 tháng (120%)</option>
+                  </select>
+                  <i className="fa-solid fa-chevron-down text-white text-xs absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
                 </div>
               </div>
             </div>
