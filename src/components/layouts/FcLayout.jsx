@@ -149,9 +149,9 @@ export default function FcLayout() {
                   value={state.fyp}
                   onChange={v => dispatch1('fyp', v)}
                   placeholder="Ví dụ: 30.000.000"
-                  className="vnd-input-large w-full pl-4 pr-16 py-4 text-lg font-bold"
+                  className="w-full bg-teal-50 dark:bg-teal-500/10 border-2 border-teal-200 dark:border-teal-500/30 text-teal-700 dark:text-teal-300 pl-4 pr-16 py-4 text-lg font-extrabold rounded-xl focus:ring-4 focus:ring-teal-500/40 focus:border-teal-400 transition-all duration-200 ease-out"
                 />
-                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 font-medium">₫</span>
+                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-teal-500 dark:text-teal-400 font-medium">₫</span>
               </div>
               <p className="text-xs text-slate-400 dark:text-slate-500 mt-1.5">Nhập số nguyên, hệ thống tự định dạng.</p>
             </div>
