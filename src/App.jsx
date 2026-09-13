@@ -155,8 +155,8 @@ function AppInner() {
               onClick={toggleDark}
               className="flex items-center gap-2 px-3 py-2 min-h-[40px] rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-yellow-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all shadow-sm text-sm font-medium"
             >
-              <i id="dm-icon-sun" className={`fa-solid fa-sun text-base transition-all duration-300${isDark ? ' hidden' : ''}`}></i>
-              <i id="dm-icon-moon" className={`fa-solid fa-moon text-base transition-all duration-300${isDark ? '' : ' hidden'}`}></i>
+              <i id="dm-icon-sun" className="fa-solid fa-sun text-base transition-all duration-300" style={{ display: isDark ? 'none' : undefined }}></i>
+              <i id="dm-icon-moon" className="fa-solid fa-moon text-base transition-all duration-300" style={{ display: isDark ? undefined : 'none' }}></i>
               <span id="dm-label" className="mode-label">{isDark ? 'Chế độ Tối' : 'Chế độ Sáng'}</span>
             </button>
             <button
