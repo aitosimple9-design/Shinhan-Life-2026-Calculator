@@ -20,6 +20,8 @@ import {
     calculateSMFees,
 } from './rules/sm-rules.js';
 
+import { isFC, isSL, isSM } from './role-groups.js';
+
 // ---- Defensive helper ----
 /**
  * Chuyển đổi giá trị sang Number an toàn.
@@ -58,10 +60,8 @@ export function getK2Coefficient(state) {
     const role = state.role;
     const k2Pct = state.k2Bracket;
     const month = state.monthMode;
-    const isAgent = ['FC', 'StarFC'].includes(role);
-    const isSL = ['GSL', 'SSL', 'ESL'].includes(role);
-    if (isAgent) return getK2Coefficient_FC(k2Pct, month);
-    if (isSL) return getK2Coefficient_SL(k2Pct, month);
+    if (isFC(role)) return getK2Coefficient_FC(k2Pct, month);
+    if (isSL(role)) return getK2Coefficient_SL(k2Pct, month);
     return getK2Coefficient_SM(k2Pct, month);
 }
 
@@ -104,10 +104,10 @@ export function calculateIncome(state, overrideFypMillions = null) {
 
     let smDerived = null;
 
-    const isAgent = ['FC', 'StarFC'].includes(role);
-    const isSL = ['GSL', 'SSL', 'ESL'].includes(role);
-    const isSM = ['SM', 'EM', 'ERM', 'IRM'].includes(role);
-    const calcPersonal = isAgent || ((isSL || isSM) && state.hasPersonalSales);
+    const isAgent = isFC(role);
+    const isSlRole = isSL(role);
+    const isSmRole = isSM(role);
+    const calcPersonal = isAgent || ((isSlRole || isSmRole) && state.hasPersonalSales);
 
     // ======================================================
     // NHÓM 1: Tư vấn viên (FC / StarFC) — hoặc SL/SM+ có DS cá nhân
@@ -144,7 +144,7 @@ export function calculateIncome(state, overrideFypMillions = null) {
     // ======================================================
     // NHÓM 2: Quản lý cấp trung — SL (GSL, SSL, ESL)
     // ======================================================
-    if (isSL) {
+    if (isSlRole) {
         const slResult = calculateSLFees({
             role,
             slFycRate: safeNum(state.fycRateSl) / 100,
@@ -173,7 +173,7 @@ export function calculateIncome(state, overrideFypMillions = null) {
     // ======================================================
     // NHÓM 3: Quản lý cấp cao — SM+ (SM, EM, ERM, IRM)
     // ======================================================
-    if (isSM) {
+    if (isSmRole) {
         const fypL1Mil = (role === 'SM') ? 0 : safeNum(state.fypIndirectSmL1) / 1_000_000;
         const fypL2Mil = (['SM', 'EM'].includes(role)) ? 0 : safeNum(state.fypIndirectSmL2) / 1_000_000;
         const fypL3Mil = (['SM', 'EM', 'ERM'].includes(role)) ? 0 : safeNum(state.fypIndirectSmL3) / 1_000_000;
