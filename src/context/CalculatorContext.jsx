@@ -8,7 +8,7 @@ const initialState = {
   // ---- FC / StarFC: Cá nhân ----
   fyp: 25000000,
   fycRate: 25,
-  k2Bracket: '80+',
+  k2Bracket: 80,
   aitom: 'A',
 
   // ---- FC: Thưởng quý ----

@@ -143,6 +143,17 @@
 - **Định mức phí chuẩn GSL (Bảng 1):** M1-M9 đạt chỉ tiêu (FYP từ 35M - 75M, 1 - 5 lượt hoạt động) => Phí chuẩn = **8,0 triệu VNĐ/tháng**.
 - **Định mức phí chuẩn SSL (Bảng 2):** M1-M12 đạt chỉ tiêu (FYP từ 40M - 100M, 2 - 5 lượt hoạt động) => Phí chuẩn = **10,0 triệu VNĐ/tháng**.
 - **Định mức phí chuẩn ESL (Bảng 3):** M1-M15 đạt chỉ tiêu (FYP toàn nhóm 90M - 255M, 1 - 2 lượt hoạt động) => Phí chuẩn = **12,0 triệu VNĐ/tháng**.
+- **Bảng 4 (Hệ số hiệu chỉnh ESL):** ⚠️ CHƯA CÓ NGUỒN — cần bổ sung memo gốc.
+- **Bảng 5 (Hệ số K2 cho Phí Đào tạo SL+):** (đã xác nhận đối chiếu chính sách gốc SHL-FCS-2026-0008)
+
+| K2 Toàn nhóm | Tháng hoạt động < [M12] | Tháng hoạt động >= [M12] |
+| :--- | :---: | :---: |
+| < 40% | K2 thực đạt Toàn nhóm | K2 thực đạt Toàn nhóm |
+| >= 40% đến < 50% | 50% | 50% |
+| >= 50% đến < 60% | 65% | 65% |
+| >= 60% đến < 65% | 80% | 80% |
+| >= 65% đến < 75% | 100% | 100% |
+| >= 75% | 100% | 120% |
 
 ### 4.2 Phí dịch vụ Khai thác Nhóm hàng tháng (SL) - Bảng 8 & Bảng 9:
 *Công thức:* `Phí khai thác = [(FYC Trực tiếp x % Phí Bảng 8) + (FYC Gián tiếp L1 x 5.0%) + (FYC Gián tiếp L2 x 2.5%)] x Hệ số K2`
@@ -171,8 +182,12 @@
 - **Tỷ lệ phân bổ chỉ tiêu tháng (Bảng 2):** M1 = **4.0%** | M2 = **5.0%** | M3 = **6.0%** | M4-M12 = **9.45%** | M13+ = **8.33%**.
 - **Công thức chỉ tiêu tháng:** `Chỉ tiêu FYP tháng = Chỉ tiêu chuẩn năm x Tỷ lệ phân bổ tháng`.
 
-### 5.2 Phí Đào tạo Đội ngũ Trực thuộc (SM+) - Bảng 4, 5, 6:
-*Công thức:* `Phí đào tạo thực nhận = 75% x Phí chuẩn mỗi tháng (Bảng 4) x Hệ số FYP (Bảng 5) x Hệ số K2 (Bảng 6)`
+### 5.2 Phí Đào tạo Đội ngũ Trực thuộc (SM+) - Bảng 4, 5, 6, 7:
+*Công thức (đã xác nhận đối chiếu chính sách gốc SHL-FCS-2026-0009 Mục 2.1 — là HAI khoản CỘNG riêng, không phải một công thức nhân chung):*
+- `Phí đào tạo Kinh doanh (75%) = 75% x Phí chuẩn mỗi tháng (Bảng 4) x Hệ số FYP (Bảng 5) x Hệ số K2 (Bảng 6)`
+- `Phí đào tạo Hoạt động (25%) = 25% x Phí chuẩn mỗi tháng (Bảng 4) x Hệ số hoạt động (Bảng 7)` — **Hệ số K2 KHÔNG được nhân vào phần này.**
+- `Phí đào tạo thực nhận = Phí đào tạo Kinh doanh + Phí đào tạo Hoạt động`
+
 - **Mức Phí dịch vụ chuẩn tháng (Bảng 4):** SM = **40 triệu** | EM = **60 triệu** | ERM = **80 triệu** | IRM = **110 triệu**.
 - **Hệ số hoàn thành FYP (Bảng 5):**
   + `< 35%`: **0%**
@@ -180,6 +195,18 @@
   + `50% đến < 80%`: **50%**
   + `80% đến < 115%`: **100%**
   + `>= 115%`: **120%**
+- **Hệ số K2 Toàn Nhóm (Bảng 6):** (đã xác nhận đối chiếu chính sách gốc SHL-FCS-2026-0009 Bảng 6)
+  + `K2 < 35%`: Hệ số = **% K2 thực đạt**.
+  + `35% đến < 45%`: Hệ số = **50%**.
+  + `45% đến < 50%`: Hệ số = **60%**.
+  + `50% đến < 60%`: Hệ số = **80%**.
+  + `60% đến < 70%`: Hệ số = **100%**.
+  + `>= 70%`: Hệ số = **100%** (nếu tháng hoạt động < M12) hoặc **120%** (nếu tháng hoạt động >= M12).
+- **Hệ số hoạt động (Bảng 7)** — theo số lượt hoạt động Nhóm trực tiếp: (đã xác nhận đối chiếu chính sách gốc SHL-FCS-2026-0009 Mục 2.1)
+  + `< 3 lượt`: **0%**
+  + `3 đến < 5 lượt`: **25%**
+  + `5 đến < 7 lượt`: **50%**
+  + `>= 7 lượt`: **100%**
 
 ### 5.3 Phí Khai thác Nhóm hàng tháng (SM+) - Bảng 8 & Bảng 9:
 *Công thức:* `Phí khai thác tháng = [(FYC Trực tiếp x % Phí Bảng 8) + (FYC Gián tiếp x % Phí Bảng 9)] x Hệ số K2`
@@ -191,6 +218,10 @@
   + Cấp **EM**: <80% HT = **2,4%** | 80%-<100% HT = **4,0%** | >=100% HT = **4,8%**
   + Cấp **ERM**: <80% HT = **1,8%** | 80%-<100% HT = **3,0%** | >=100% HT = **3,6%**
   + Cấp **IRM**: <80% HT = **1,2%** | 80%-<100% HT = **2,0%** | >=100% HT = **2,4%**
+
+### 5.4 Mục 2.4 - 2.7 (SM+): ⚠️ CHƯA CÓ NGUỒN — cần bổ sung memo gốc.
+
+### 5.5 Phí Chăm Sóc Khách Hàng (SM+) - Mục 2.8, Bảng 18: ⚠️ CHƯA CÓ NGUỒN — cần bổ sung memo gốc (đối chiếu SHL-FCS-2026-0009 Bảng 18).
 
 ---
 

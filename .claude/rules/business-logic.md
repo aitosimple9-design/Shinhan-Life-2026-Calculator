@@ -38,13 +38,15 @@ OUTPUT: k2Coef (số thực)
 
 IS_M12_PLUS = groupMonthMode IN ['12', '12+', '13+', '12-15', '16+', '14-19', '20+']
 
-IF k2Pct < 40   → return 0.50
+IF k2Pct < 40   → return k2Pct / 100        ← bằng % K2 thực đạt Toàn nhóm
 IF k2Pct < 50   → return 0.50
 IF k2Pct < 60   → return 0.65
 IF k2Pct < 65   → return 0.80
 IF k2Pct < 75   → return 1.00
 IF k2Pct >= 75  → return IS_M12_PLUS ? 1.20 : 1.00
 ```
+
+> ✅ Đã xác nhận qua Bảng 5 (Hệ số K2 cho Phí Đào tạo SL+): nhánh `<40%` trả về đúng % K2 thực đạt Toàn nhóm, KHÔNG phải hằng số 0.50. Nghi vấn trước đây đã được giải quyết.
 
 > **Lưu ý:** Tháng hoạt động nhóm < M12 và >= M12 có cùng hệ số, chỉ khác ở mức K2 >= 75%.
 > **Quarterly Catch-up:** Cuối quý, nếu đạt chỉ tiêu nhóm nhưng K2 chưa tối đa, xét trả phần trăm theo mốc hệ số tại Bảng 6.
@@ -61,7 +63,7 @@ OUTPUT: k2Coef (số thực)
 
 IS_M12_PLUS = monthMode IN ['12', '12+', '13+', '12-15', '16+', '14-19', '20+']
 
-IF k2Pct < 35   → return 0.50
+IF k2Pct < 35   → return k2Pct / 100        ← bằng % K2 thực đạt
 IF k2Pct < 45   → return 0.50
 IF k2Pct < 50   → return 0.60
 IF k2Pct < 60   → return 0.80
@@ -71,6 +73,7 @@ IF k2Pct >= 70  → return IS_M12_PLUS ? 1.20 : 1.00
 
 ### Phí Chăm Sóc Khách Hàng SM+ (Mục 2.8 — Bảng 18)
 > Tỷ lệ phí dịch vụ phụ thuộc trực tiếp vào K2 Toàn Nhóm (độc lập với IS_M12_PLUS).
+> ⚠️ Chưa có nguồn xác nhận trong spec.md (Mục 5.5 hiện là placeholder) — cần bổ sung memo SHL-FCS-2026-0009 Bảng 18 trước khi tin số liệu dưới đây.
 
 ```
 INPUT: k2Pct (số %)
@@ -225,10 +228,21 @@ IF rate < 0.50   → hsFYP = rate (thực tế)
 IF rate < 0.80   → hsFYP = 0.50
 IF rate < 1.15   → hsFYP = 1.00
 ELSE             → hsFYP = 1.20
+```
 
+**Phí Đào tạo — CÔNG THỨC ĐÃ SỬA (đối chiếu chính sách gốc SHL-FCS-2026-0009 Mục 2.1: là HAI khoản CỘNG riêng, Hệ số K2 chỉ nhân vào phần 75%, KHÔNG nhân vào phần 25%):**
+```
 phiChuan = {SM:40, EM:60, ERM:80, IRM:110}[role]
-hsHC     = activeHC >= 1 ? 1.0 : 0.0
-phiDaoTao = phiChuan * (0.75*hsFYP + 0.25*hsHC) * k2Coef
+
+// Bảng 7 — Hệ số hoạt động (theo số lượt hoạt động Nhóm trực tiếp)
+IF activeHC < 3   → hsHC = 0.00
+IF activeHC < 5   → hsHC = 0.25
+IF activeHC < 7   → hsHC = 0.50
+IF activeHC >= 7  → hsHC = 1.00
+
+phiDaoTaoKinhDoanh = 0.75 * hsFYP * phiChuan * k2Coef
+phiDaoTaoHoatDong  = 0.25 * hsHC  * phiChuan              ← KHÔNG nhân k2Coef
+phiDaoTao = phiDaoTaoKinhDoanh + phiDaoTaoHoatDong
 ```
 
 **Phí Khai thác (Bảng 8 & 9, theo % hoàn thành):**

@@ -21,21 +21,21 @@ function roundMil(val) {
 
 /**
  * Tra hệ số K2 cho chức danh SL (GSL / SSL / ESL).
- * @param {string} bracket   - Mức ngưỡng K2 ('75+', '65-75', ...)
+ * Xác nhận qua Bảng 5 (Hệ số K2 cho Phí Đào tạo SL+): nhánh <40% trả về đúng
+ * % K2 thực đạt Toàn nhóm, không phải hằng số cố định.
+ * @param {number} k2Pct     - K2 Toàn nhóm thực đạt (%, số thô, 0-150)
  * @param {string} monthMode - Tháng hoạt động
  * @returns {number}
  */
-export function getK2Coefficient_SL(bracket, monthMode) {
-    const isM12Plus = ['12+', '13+', '12-15', '16+', '14-19', '20+'].includes(monthMode);
-    switch (bracket) {
-        case '<40':   return 0.50;
-        case '40-50': return 0.50;
-        case '50-60': return 0.65;
-        case '60-65': return 0.80;
-        case '65-75': return 1.00;
-        case '75+':   return isM12Plus ? 1.20 : 1.00;
-        default:      return 1.00;
-    }
+export function getK2Coefficient_SL(k2Pct, monthMode) {
+    const isM12Plus = ['12', '12+', '13+', '12-15', '16+', '14-19', '20+'].includes(monthMode);
+    const pct = safeNum(k2Pct);
+    if (pct < 40) return pct / 100;
+    if (pct < 50) return 0.50;
+    if (pct < 60) return 0.65;
+    if (pct < 65) return 0.80;
+    if (pct < 75) return 1.00;
+    return isM12Plus ? 1.20 : 1.00;
 }
 
 // ============================================================
@@ -60,10 +60,10 @@ export function calculateSLQuarterBonus(role, fypQMil, l1FypQMil, l2FypQMil, slF
         pctQ = role === 'GSL' ? 0.08 : (role === 'SSL' ? 0.10 : 0.12);
     }
 
-    const fycQTT  = fypQMil   * slFycRate;
-    const fycQL1  = l1FypQMil * slFycRate;
-    const fycQL2  = l2FypQMil * slFycRate;
-    const total   = ((fycQTT * pctQ) + (fycQL1 * 0.05) + (fycQL2 * 0.025)) * k2Coef;
+    const fycQTT = fypQMil * slFycRate;
+    const fycQL1 = l1FypQMil * slFycRate;
+    const fycQL2 = l2FypQMil * slFycRate;
+    const total = ((fycQTT * pctQ) + (fycQL1 * 0.05) + (fycQL2 * 0.025)) * k2Coef;
     return roundMil(total / 3);
 }
 
@@ -108,20 +108,20 @@ export function calculateStandardManagementFee(role, slAppointmentType, monthMod
  */
 export function getSLDirectRate(role, teamFypTT) {
     if (role === 'GSL') {
-        if      (teamFypTT < 30) return 0.03;
+        if (teamFypTT < 30) return 0.03;
         else if (teamFypTT < 60) return 0.10;
         else if (teamFypTT < 90) return 0.15;
-        else                     return 0.20;
+        else return 0.20;
     } else if (role === 'SSL') {
-        if      (teamFypTT < 30) return 0.04;
+        if (teamFypTT < 30) return 0.04;
         else if (teamFypTT < 60) return 0.15;
         else if (teamFypTT < 90) return 0.20;
-        else                     return 0.25;
+        else return 0.25;
     } else { // ESL
-        if      (teamFypTT < 30) return 0.05;
+        if (teamFypTT < 30) return 0.05;
         else if (teamFypTT < 60) return 0.20;
         else if (teamFypTT < 90) return 0.25;
-        else                     return 0.30;
+        else return 0.30;
     }
 }
 
@@ -183,7 +183,7 @@ export function calculateSLFees({
     // 2.0 Thưởng quý SL
     let mgmtQuarter = 0;
     if (hasSlQuarterBonus) {
-        const fypQMil  = safeNum(fypTeamQuarterRaw)  / 1_000_000;
+        const fypQMil = safeNum(fypTeamQuarterRaw) / 1_000_000;
         const l1FypQMil = role === 'GSL' ? 0 : safeNum(l1FypQuarterRaw) / 1_000_000;
         const l2FypQMil = role !== 'ESL' ? 0 : safeNum(l2FypQuarterRaw) / 1_000_000;
         mgmtQuarter = calculateSLQuarterBonus(role, fypQMil, l1FypQMil, l2FypQMil, slFycRate, k2Coef);
@@ -196,7 +196,7 @@ export function calculateSLFees({
 
     // 2.2 Phí khai thác trực tiếp
     const directRate = getSLDirectRate(role, teamFypTT);
-    const teamFycTT  = teamFypTT * slFycRate;
+    const teamFycTT = teamFypTT * slFycRate;
     const mgmtDirect = roundMil(teamFycTT * directRate * k2Coef);
 
     // 2.3 Phí khai thác gián tiếp

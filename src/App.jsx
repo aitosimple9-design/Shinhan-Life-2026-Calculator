@@ -18,57 +18,57 @@ import './App.css';
 
 // ── Tab definitions ────────────────────────────────────────────────────────────
 const TABS = [
-  { id: 'agent', label: 'Đại lý',          icon: 'fa-user',   roles: ['FC','StarFC'] },
-  { id: 'sl',    label: 'Quản lý (SL+)',   icon: 'fa-users',  roles: ['GSL','SSL','ESL'] },
-  { id: 'sm',    label: 'Cấp cao (SM+)',   icon: 'fa-crown',  roles: ['SM','EM','ERM','IRM'] },
+  { id: 'agent', label: 'Đại lý', icon: 'fa-user', roles: ['FC', 'StarFC'] },
+  { id: 'sl', label: 'Quản lý (SL+)', icon: 'fa-users', roles: ['GSL', 'SSL', 'ESL'] },
+  { id: 'sm', label: 'Cấp cao (SM+)', icon: 'fa-crown', roles: ['SM', 'EM', 'ERM', 'IRM'] },
 ];
 
 const ROLE_META = {
-  FC:     { label: 'FC',     icon: 'fa-user',     sub: null },
-  StarFC: { label: 'Star FC',icon: 'fa-star',     sub: null,   iconClass: 'text-yellow-400' },
-  GSL:    { label: 'GSL',    letter: 'G',         sub: 'Trưởng nhóm' },
-  SSL:    { label: 'SSL',    letter: 'S',         sub: 'Trưởng ban' },
-  ESL:    { label: 'ESL',    letter: 'E',         sub: 'TB cấp cao' },
-  SM:     { label: 'SM',     sub: null },
-  EM:     { label: 'EM',     sub: null },
-  ERM:    { label: 'ERM',    sub: null },
-  IRM:    { label: 'IRM',    sub: null },
+  FC: { label: 'FC', icon: 'fa-user', sub: null },
+  StarFC: { label: 'Star FC', icon: 'fa-star', sub: null, iconClass: 'text-yellow-400' },
+  GSL: { label: 'GSL', letter: 'G', sub: 'Trưởng nhóm' },
+  SSL: { label: 'SSL', letter: 'S', sub: 'Trưởng ban' },
+  ESL: { label: 'ESL', letter: 'E', sub: 'TB cấp cao' },
+  SM: { label: 'SM', sub: null },
+  EM: { label: 'EM', sub: null },
+  ERM: { label: 'ERM', sub: null },
+  IRM: { label: 'IRM', sub: null },
 };
 
 const BREAKDOWN_LABELS = {
-  fyc:           'Hoa hồng cơ bản (FYC)',
-  bonusMonth:    'Thưởng năng suất tháng',
-  bonusQuarter:  'Thưởng quý (BQ/tháng)',
-  starSupport:   'Hỗ trợ tài chính Ngôi sao',
-  mgmtTraining:  'Phí đào tạo đội ngũ',
-  mgmtDirect:    'Phí khai thác trực tiếp tháng',
-  mgmtQuarter:   'Phí khai thác Quý (BQ/tháng)',
-  mgmtIndirect:  'Phí khai thác gián tiếp L1/L2',
-  mgmtIndirectSm:'Phí quản lý nhóm gián tiếp',
-  partner:       'Thưởng Shinhan Partner',
-  mdrt:          'Thưởng tiến độ MDRT (BQ)',
+  fyc: 'Hoa hồng cơ bản (FYC)',
+  bonusMonth: 'Thưởng năng suất tháng',
+  bonusQuarter: 'Thưởng quý (BQ/tháng)',
+  starSupport: 'Hỗ trợ tài chính Ngôi sao',
+  mgmtTraining: 'Phí đào tạo đội ngũ',
+  mgmtDirect: 'Phí khai thác trực tiếp tháng',
+  mgmtQuarter: 'Phí khai thác Quý (BQ/tháng)',
+  mgmtIndirect: 'Phí khai thác gián tiếp L1/L2',
+  mgmtIndirectSm: 'Phí quản lý nhóm gián tiếp',
+  partner: 'Thưởng Shinhan Partner',
+  mdrt: 'Thưởng tiến độ MDRT (BQ)',
 };
 
 // ── Inner app (has access to context) ─────────────────────────────────────────
 function AppInner() {
-  const state    = useCalculatorState();
+  const state = useCalculatorState();
   const dispatch = useCalculatorDispatch();
-  const perms    = usePermissions();
+  const perms = usePermissions();
   const { isDark, toggle: toggleDark } = useDarkMode();
 
   const { visible: visibleTotal, full } = useCalculator();
   const { breakdown } = full;
   const animatedTotal = useAnimatedNumber(visibleTotal, 280);
 
-  const [activeTab, setActiveTab]   = useState(null);
-  const [chartOpen, setChartOpen]   = useState(false);
+  const [activeTab, setActiveTab] = useState(null);
+  const [chartOpen, setChartOpen] = useState(false);
   const [hiddenOpen, setHiddenOpen] = useState(false);
 
   const dispatch1 = (key, value) => dispatch({ type: 'UPDATE_STATE', payload: { key, value } });
 
   // ── Initialise from URL params (one-time on mount) ─────────────────────────
   useEffect(() => {
-    const params  = new URLSearchParams(window.location.search);
+    const params = new URLSearchParams(window.location.search);
 
     // Dark mode
     if (params.get('dark') === '1') {
@@ -134,7 +134,7 @@ function AppInner() {
     : `TỔNG PHÍ DỊCH VỤ ƯỚC TÍNH (${role})`;
 
   // ── Visible tabs / roles (filtered by permissions) ────────────────────────
-  const visibleTabs  = TABS.filter(t => perms.allowedRoles.length === 0 || perms.allowedTabs.includes(t.id));
+  const visibleTabs = TABS.filter(t => perms.allowedRoles.length === 0 || perms.allowedTabs.includes(t.id));
   const isRoleVisible = (r) => perms.allowedRoles.length === 0 || perms.allowedRoles.includes(r);
 
   // ── Hidden keys accordion ─────────────────────────────────────────────────
@@ -145,10 +145,12 @@ function AppInner() {
   const hiddenRowData = state.hiddenKeys.map(key => {
     if (key.startsWith('extra_')) {
       const id = parseInt(key.split('_')[1]);
-      const b  = state.extraBonuses.find(x => x.id === id);
+      const b = state.extraBonuses.find(x => x.id === id);
       return b
-        ? { key, label: b.name || 'Khoản thưởng khác',
-            val: b.type === 'quarter' ? b.amountVND / 3_000_000 : b.amountVND / 1_000_000 }
+        ? {
+          key, label: b.name || 'Khoản thưởng khác',
+          val: b.type === 'quarter' ? b.amountVND / 3_000_000 : b.amountVND / 1_000_000
+        }
         : null;
     }
     return { key, label: BREAKDOWN_LABELS[key] || key, val: breakdown[key] || 0 };
@@ -156,6 +158,16 @@ function AppInner() {
 
   // ── Perks ─────────────────────────────────────────────────────────────────
   const showPerks = isFC(role) || state.hasPersonalSales;
+
+  // ── DEV: Preview page ─────────────────────────────────────────────────────
+  if (window.location.pathname === '/previewpage') {
+    const PreviewPage = React.lazy(() => import('./pages/PreviewPage.jsx'));
+    return (
+      <React.Suspense fallback={<div className="p-8 text-slate-400">Đang tải...</div>}>
+        <PreviewPage />
+      </React.Suspense>
+    );
+  }
 
   return (
     <div className="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 font-sans antialiased min-h-screen transition-colors duration-300">
@@ -179,7 +191,7 @@ function AppInner() {
               onClick={toggleDark}
               className="flex items-center gap-2 px-3 py-2 min-h-[40px] rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-yellow-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all shadow-sm text-sm font-medium"
             >
-              <i id="dm-icon-sun"  className={`fa-solid fa-sun text-base transition-all duration-300${isDark ? ' hidden' : ''}`}></i>
+              <i id="dm-icon-sun" className={`fa-solid fa-sun text-base transition-all duration-300${isDark ? ' hidden' : ''}`}></i>
               <i id="dm-icon-moon" className={`fa-solid fa-moon text-base transition-all duration-300${isDark ? '' : ' hidden'}`}></i>
               <span id="dm-label" className="mode-label">{isDark ? 'Chế độ Tối' : 'Chế độ Sáng'}</span>
             </button>

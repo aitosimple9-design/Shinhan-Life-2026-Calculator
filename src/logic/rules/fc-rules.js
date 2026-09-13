@@ -21,21 +21,19 @@ function roundMil(val) {
 
 /**
  * Tra hệ số K2 cho chức danh FC / StarFC.
- * @param {string} bracket  - Mức ngưỡng K2 ('80+', '70-80', ...)
+ * @param {number} k2Pct     - K2 cá nhân thực đạt (%, số thô, 0-150)
  * @param {string} monthMode - Tháng hoạt động ('1', '2-7', '8-13', '14-19', '13+', ...)
  * @returns {number}
  */
-export function getK2Coefficient_FC(bracket, monthMode) {
+export function getK2Coefficient_FC(k2Pct, monthMode) {
     const isM12Plus = ['12+', '12', '13+', '12-15', '16+', '14-19', '20+'].includes(monthMode);
-    switch (bracket) {
-        case '<50':   return 0.45;
-        case '50-60': return 0.50;
-        case '60-65': return 0.65;
-        case '65-70': return 0.80;
-        case '70-80': return 1.00;
-        case '80+':   return isM12Plus ? 1.20 : 1.00;
-        default:      return 1.00;
-    }
+    const pct = safeNum(k2Pct);
+    if (pct < 50) return pct / 100;
+    if (pct < 60) return 0.50;
+    if (pct < 65) return 0.65;
+    if (pct < 70) return 0.80;
+    if (pct < 80) return 1.00;
+    return isM12Plus ? 1.20 : 1.00;
 }
 
 // ============================================================
@@ -203,13 +201,13 @@ export function calculateStarFCSupport(fypRaw, numContracts, referralFypRaw, mon
 /**
  * Tính thưởng Shinhan Partner (FC).
  * @param {string} partner    - Danh hiệu: 'G', 'S', 'E', 'none'
- * @param {string} k2Bracket  - Mức ngưỡng K2
+ * @param {number} k2Pct      - K2 cá nhân thực đạt (%, số thô)
  * @param {number} fypMil     - FYP cá nhân (triệu ₫)
  * @param {number} fycRate    - Tỷ lệ FYC dạng thập phân
  * @returns {number}          - Thưởng Shinhan Partner (triệu ₫)
  */
-export function calculatePartnerBonus(partner, k2Bracket, fypMil, fycRate) {
-    const partnerK2Met = ['70-80', '80+'].includes(k2Bracket);
+export function calculatePartnerBonus(partner, k2Pct, fypMil, fycRate) {
+    const partnerK2Met = safeNum(k2Pct) >= 70;
     if (partner !== 'none' && partnerK2Met) {
         const pRate = { G: 0.10, S: 0.15, E: 0.20 }[partner] || 0;
         return roundMil(fypMil * fycRate * pRate);
@@ -242,7 +240,7 @@ export function calculateMDRTBonus(mdrt) {
  * @param {number} params.fypMil         - FYP cá nhân tháng (triệu ₫)
  * @param {number} params.fycRate        - Tỷ lệ FYC dạng thập phân
  * @param {number} params.k2Coef         - Hệ số K2
- * @param {string} params.k2Bracket      - Mức ngưỡng K2
+ * @param {number} params.k2Pct          - K2 cá nhân thực đạt (%, số thô)
  * @param {string} params.aitom          - Cấp AiTOM
  * @param {string} params.partner        - Danh hiệu Shinhan Partner ('G', 'S', 'E', 'none')
  * @param {boolean} params.mdrt          - Đạt MDRT
@@ -260,7 +258,7 @@ export function calculatePersonalBonus({
     fypMil,
     fycRate,
     k2Coef,
-    k2Bracket,
+    k2Pct,
     aitom,
     partner,
     mdrt,
@@ -299,7 +297,7 @@ export function calculatePersonalBonus({
     }
 
     // Shinhan Partner
-    const partnerBonus = calculatePartnerBonus(partner, k2Bracket, fypMil, fycRate);
+    const partnerBonus = calculatePartnerBonus(partner, k2Pct, fypMil, fycRate);
 
     // MDRT
     const mdrtBonus = calculateMDRTBonus(mdrt);
