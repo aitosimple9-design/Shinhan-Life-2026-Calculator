@@ -21,8 +21,8 @@ function roundMil(val) {
 
 /**
  * Tra hệ số K2 cho chức danh SL (GSL / SSL / ESL).
- * Xác nhận qua Bảng 5 (Hệ số K2 cho Phí Đào tạo SL+): nhánh <40% trả về đúng
- * % K2 thực đạt Toàn nhóm, không phải hằng số cố định.
+ * ⚠️ CHƯA XÁC MINH — chưa tìm thấy PDF SHL-FCS-2026-0008 trong dự án, cần
+ * xác nhận lại với người dùng (nhánh <40% trả về % K2 thực đạt Toàn nhóm).
  * @param {number} k2Pct     - K2 Toàn nhóm thực đạt (%, số thô, 0-150)
  * @param {string} monthMode - Tháng hoạt động
  * @returns {number}
