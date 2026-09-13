@@ -209,9 +209,9 @@ export default function FcLayout() {
           </div>
 
           {state.hasQuarterBonus && (
-            <div className="grid grid-cols-2 gap-4 bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-white/5 slide-in">
+            <div className="grid grid-cols-2 gap-4 bg-teal-50 dark:bg-teal-950/20 p-4 rounded-xl border-2 border-teal-200 dark:border-teal-800/40 slide-in">
               <div>
-                <label className="block text-xs text-slate-500 mb-1">FYP Quý Cá nhân (VNĐ)</label>
+                <label className="block text-xs text-teal-700 dark:text-teal-400 font-medium mb-1">FYP Quý Cá nhân (VNĐ)</label>
                 <div className="relative">
                   <VndInput
                     id="fyp-quarter-number"
@@ -223,17 +223,21 @@ export default function FcLayout() {
                 </div>
               </div>
               <div>
-                <label className="block text-xs text-slate-500 mb-1">Số tháng HĐ</label>
-                <select
-                  id="quarter-active-months"
-                  className="input-base text-sm py-2"
-                  value={state.quarterActiveMonths}
-                  onChange={e => dispatch1('quarterActiveMonths', parseInt(e.target.value))}
-                >
-                  <option value="3">3 tháng (120%)</option>
-                  <option value="2">2 tháng (100%)</option>
-                  <option value="1">1 tháng (80%)</option>
-                </select>
+                <label className="block text-xs text-teal-700 dark:text-teal-400 font-medium mb-1">Số tháng HĐ</label>
+                <div className="flex bg-white dark:bg-slate-900 p-1 rounded-lg border border-teal-200 dark:border-teal-800/40 gap-1" id="quarter-active-months">
+                  {[{ v: 1, pct: '80%' }, { v: 2, pct: '100%' }, { v: 3, pct: '120%' }].map(({ v, pct }) => (
+                    <button
+                      key={v}
+                      type="button"
+                      onClick={() => dispatch1('quarterActiveMonths', v)}
+                      className={`flex-1 py-1.5 rounded-md text-xs font-bold transition-all duration-150 active:scale-95 ${state.quarterActiveMonths === v
+                        ? 'bg-teal-600 text-white shadow-sm'
+                        : 'text-slate-500 dark:text-slate-400 hover:bg-teal-50 dark:hover:bg-teal-900/30'}`}
+                    >
+                      {v}th ({pct})
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
           )}

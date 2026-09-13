@@ -28,9 +28,10 @@ export default function K2Selector() {
   }, [group]);
 
   const coef = getK2Coefficient(state);
-  let badgeColor = 'text-red-400';
-  if (coef >= 1.0) badgeColor = 'text-teal-500';
-  else if (coef >= 0.65) badgeColor = 'text-yellow-500';
+  // Tông màu theo tầng hệ số — nổi bật + tạo điểm nhấn theo mức đang chọn
+  let tier = { text: 'text-red-500 dark:text-red-400', ring: 'focus-within:ring-red-500/40 focus-within:border-red-400', box: 'bg-red-50 dark:bg-red-500/10 border-red-200 dark:border-red-500/30', num: 'text-red-600 dark:text-red-400' };
+  if (coef >= 1.0) tier = { text: 'text-teal-600 dark:text-teal-400', ring: 'focus-within:ring-teal-500/40 focus-within:border-teal-400', box: 'bg-teal-50 dark:bg-teal-500/10 border-teal-200 dark:border-teal-500/30', num: 'text-teal-700 dark:text-teal-300' };
+  else if (coef >= 0.65) tier = { text: 'text-amber-600 dark:text-amber-400', ring: 'focus-within:ring-amber-500/40 focus-within:border-amber-400', box: 'bg-amber-50 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/30', num: 'text-amber-700 dark:text-amber-300' };
 
   return (
     <div>
@@ -38,14 +39,14 @@ export default function K2Selector() {
         <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Hệ số K2</span>
         <span className="text-[11px] text-slate-400 dark:text-slate-500">{subtitle}</span>
       </div>
-      <label className="flex items-center gap-1.5 w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2.5 cursor-text focus-within:ring-2 focus-within:ring-teal-500/50 focus-within:border-teal-500 transition-all duration-200 ease-out">
+      <label className={`flex items-center gap-1.5 w-full border-2 rounded-lg px-3 py-2.5 cursor-text focus-within:ring-4 transition-all duration-200 ease-out ${tier.box} ${tier.ring}`}>
         <span className="text-sm text-slate-500 dark:text-slate-400 shrink-0">K2 ≥</span>
         <input
           type="number"
           min="0"
           max="150"
           step="1"
-          className="w-12 bg-transparent text-sm font-bold text-slate-900 dark:text-slate-100 outline-none [appearance:textfield]"
+          className={`w-12 bg-transparent text-base font-extrabold outline-none [appearance:textfield] ${tier.num}`}
           value={typeof curVal === 'number' ? curVal : ''}
           onChange={(e) => {
             let v = Number(e.target.value);
@@ -56,8 +57,8 @@ export default function K2Selector() {
         />
         <span className="text-sm text-slate-500 dark:text-slate-400 shrink-0">%</span>
         <span className="flex-1"></span>
-        <span className={`text-xs font-semibold shrink-0 ${badgeColor}`}>(Hệ số ×{coef.toFixed(2)})</span>
-        <i className="fa-solid fa-chevron-down text-slate-400 dark:text-slate-500 text-xs shrink-0"></i>
+        <span className={`text-xs font-bold shrink-0 ${tier.text}`}>(Hệ số ×{coef.toFixed(2)})</span>
+        <i className={`fa-solid fa-chevron-down text-xs shrink-0 ${tier.text}`}></i>
       </label>
     </div>
   );
