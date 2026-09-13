@@ -5,7 +5,7 @@ export default function PreviewPage() {
   const [isPersonal, setIsPersonal] = useState(false);
 
   const buildUrl = (role) => {
-    let url = `/?role=${role}`;
+    let url = `/?role=${role}&debugTitle=${role}`;
     if (isDark) url += '&dark=1';
     if (isPersonal) url += '&personal=1';
     return url;
