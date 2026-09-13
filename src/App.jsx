@@ -344,14 +344,15 @@ function AppInner() {
                 </h2>
                 <div className="space-y-3">
                   {/* Shinhan Partner */}
-                  <div className="perk-row-base flex items-center justify-between p-3 border border-slate-100 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-700/50 min-h-[64px]">
-                    <div className="flex-1 pr-2">
+                  <div className="perk-row-base flex items-center justify-between gap-3 p-3 border border-slate-100 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-700/50 min-h-[64px]">
+                    <div className="flex-1 min-w-0">
                       <div className="font-medium text-sm text-slate-800 dark:text-slate-200">Shinhan Partner</div>
                       <div className="text-xs text-slate-500 dark:text-slate-400">Thưởng thêm % trên FYC tháng</div>
                     </div>
                     <select
                       id="partner-level"
-                      className="input-base min-w-[150px] w-auto"
+                      className="input-base shrink-0"
+                      style={{ width: 'auto' }}
                       value={state.partner}
                       onChange={e => dispatch1('partner', e.target.value)}
                     >
