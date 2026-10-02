@@ -1,5 +1,7 @@
 {
   "entries": [
-    { "path": "skills/calculate-income.md" }
+    { "path": "skills/calculate-income.md" },
+    { "path": "skills/frontend-design/SKILL.md" },
+    { "path": "skills/ui-design-system/SKILL.md" }
   ]
 }
