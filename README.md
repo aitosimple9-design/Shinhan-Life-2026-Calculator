@@ -1,16 +1,34 @@
-# React + Vite
+# Shinhan Life 2026 Calculator
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Công cụ ước tính thu nhập & phí dịch vụ cho Đại lý (FC) và Quản lý kinh doanh (SL+/SM+) Shinhan Life 2026.
+Stack: React + Vite + Tailwind CSS + Chart.js, đăng nhập và phân quyền bằng Supabase (Auth + bảng `profiles` với RLS).
 
-Currently, two official plugins are available:
+## Chạy cục bộ
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+```bash
+npm ci
+cp .env.example .env.local   # điền VITE_SUPABASE_URL và VITE_SUPABASE_ANON_KEY (publishable key)
+npm run dev
+```
 
-## React Compiler
+| Lệnh | Việc |
+| :--- | :--- |
+| `npm run dev` | Dev server |
+| `npm run lint` | oxlint |
+| `npm test` | vitest (logic tính toán) |
+| `npm run build` | Build production vào `dist/` |
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Cơ sở dữ liệu
 
-## Expanding the Oxlint configuration
+Cấu trúc hiện tại: [`supabase/schema_current.md`](supabase/schema_current.md). Migration: `supabase/migrations/`.
+Đổi schema → thêm migration mới và cập nhật `schema_current.md`.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+## Bảo mật
+
+- Frontend chỉ dùng publishable/anon key. **Không** đưa `service_role` key vào repo hay biến `VITE_*`.
+- `.env.local` và mọi file `*.local.*` bị gitignore (chứa dữ liệu nhân viên khi seed tài khoản).
+- Người dùng mới dùng mật khẩu mặc định và bị ép đổi ở lần đăng nhập đầu.
+
+## Quy trình đóng góp
+
+Làm trên nhánh riêng → mở Pull Request vào `main` → CI (`.github/workflows/ci.yml`: lint, test, build) phải xanh → merge.
