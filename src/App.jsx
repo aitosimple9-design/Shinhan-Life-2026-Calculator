@@ -13,7 +13,6 @@ import SmLayout from './components/layouts/SmLayout.jsx';
 import K2Selector from './components/common/K2Selector.jsx';
 import BreakdownRow from './components/common/BreakdownRow.jsx';
 import FypSummaryCard from './components/common/FypSummaryCard.jsx';
-import GrowthChart from './components/common/GrowthChart.jsx';
 import { ExtraBonusList, ExtraBonusPhoneRows } from './components/common/ExtraBonusList.jsx';
 import { formatCurrencyPhone } from './utils/format.js';
 import { getK2Coefficient } from './logic/calculator.js';
@@ -33,13 +32,13 @@ const TABS = [
 const ROLE_META = {
   FC: { label: 'FC', icon: 'fa-user', sub: null },
   StarFC: { label: 'Star FC', icon: 'fa-star', sub: null, iconClass: 'text-yellow-400' },
-  GSL: { label: 'GSL', letter: 'G', sub: 'Trưởng nhóm' },
-  SSL: { label: 'SSL', letter: 'S', sub: 'Trưởng ban' },
-  ESL: { label: 'ESL', letter: 'E', sub: 'TB cấp cao' },
-  SM: { label: 'SM', sub: null },
-  EM: { label: 'EM', sub: null },
-  ERM: { label: 'ERM', sub: null },
-  IRM: { label: 'IRM', sub: null },
+  GSL: { label: 'GSL', letter: 'G', sub: 'Trưởng nhóm Kinh doanh' },
+  SSL: { label: 'SSL', letter: 'S', sub: 'Trưởng ban Kinh doanh' },
+  ESL: { label: 'ESL', letter: 'E', sub: 'Trưởng ban Kinh doanh Cấp cao' },
+  SM: { label: 'SM', sub: 'Giám đốc Kinh doanh Vùng' },
+  EM: { label: 'EM', sub: 'Giám đốc Kinh doanh Vùng Cấp cao' },
+  ERM: { label: 'ERM', sub: 'Giám đốc Kinh doanh Vùng Cấp cao hơn' },
+  IRM: { label: 'IRM', sub: 'Giám đốc Kinh doanh Miền' },
 };
 
 const BREAKDOWN_LABELS = {
@@ -68,7 +67,6 @@ function AppInner() {
   const animatedTotal = useAnimatedNumber(visibleTotal, 280);
 
   const [activeTab, setActiveTab] = useState(null);
-  const [chartOpen, setChartOpen] = useState(false);
   const [hiddenOpen, setHiddenOpen] = useState(false);
 
   const dispatch1 = (key, value) => dispatch({ type: 'UPDATE_STATE', payload: { key, value } });
@@ -98,8 +96,8 @@ function AppInner() {
   const isStarFCRole = role === 'StarFC';
   const layout = isFC(role) ? 'fc' : isSL(role) ? 'sl' : 'sm';
   const resultTitle = isFC(role)
-    ? `TỔNG THU NHẬP ƯỚC TÍNH (${role})`
-    : `TỔNG PHÍ DỊCH VỤ ƯỚC TÍNH (${role})`;
+    ? `Tổng thu nhập ước tính (${role})`
+    : `Tổng phí dịch vụ ước tính (${role})`;
   const k2Coef = getK2Coefficient(state);
   const roleLabel = ROLE_META[role]?.label || role;
   const groupLabel = isFC(role) ? 'ĐẠI LÝ' : isSL(role) ? 'QUẢN LÝ' : 'CẤP CAO';
@@ -107,6 +105,8 @@ function AppInner() {
   // ── Visible tabs / roles (filtered by permissions) ────────────────────────
   const visibleTabs = TABS.filter(t => perms.allowedRoles.length === 0 || perms.allowedTabs.includes(t.id));
   const isRoleVisible = (r) => perms.allowedRoles.length === 0 || perms.allowedRoles.includes(r);
+  const slVisibleRoles = TABS[1].roles.filter(isRoleVisible);
+  const smVisibleRoles = TABS[2].roles.filter(isRoleVisible);
 
   // ── Hidden keys accordion ─────────────────────────────────────────────────
   const hiddenCount = state.hiddenKeys.length;
@@ -145,7 +145,7 @@ function AppInner() {
         {/* ── HEADER ── */}
         <header className="mb-8 flex items-center justify-between flex-wrap gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-slate-900 dark:text-white flex items-center gap-3">
+            <h1 className="font-[family-name:var(--font-display)] text-3xl font-bold text-slate-900 dark:text-white flex items-center gap-3">
               <i className="fa-solid fa-calculator text-teal-600 dark:text-teal-400"></i>
               Shinhan Life 2026 Calculator
             </h1>
@@ -218,7 +218,7 @@ function AppInner() {
                 <div id="tab-panel-agent">
                   <div className="rounded-xl border border-slate-200 dark:border-white/[0.06] bg-slate-50 dark:bg-slate-950/40 p-4">
                     <div className="flex items-center justify-between mb-1.5">
-                      <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Chức Danh Của Bạn</span>
+                      <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Chức danh của bạn</span>
                       <span className="text-[11px] text-slate-400 dark:text-slate-500 flex items-center gap-1">
                         <span className={`w-1.5 h-1.5 rounded-full ${perms.allowedRoles.length > 0 ? 'bg-teal-500' : 'bg-amber-500'}`}></span>
                         Tài khoản đăng nhập
@@ -259,8 +259,55 @@ function AppInner() {
               {/* Tab: SL+ */}
               {activeTab === 'sl' && (
                 <div id="tab-panel-sl">
+                  <div className="rounded-xl border border-slate-200 dark:border-white/[0.06] bg-slate-50 dark:bg-slate-950/40 p-4 mb-4">
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Chức danh của bạn</span>
+                      <span className="text-[11px] text-slate-400 dark:text-slate-500 flex items-center gap-1">
+                        <span className={`w-1.5 h-1.5 rounded-full ${perms.allowedRoles.length > 0 ? 'bg-teal-500' : 'bg-amber-500'}`}></span>
+                        Tài khoản đăng nhập
+                      </span>
+                    </div>
+                    <div className="flex flex-col gap-3">
+                      {slVisibleRoles.map(r => {
+                        const m = ROLE_META[r];
+                        const active = role === r;
+                        return (
+                          <button
+                            key={r} data-role={r}
+                            onClick={() => handleRoleClick(r)}
+                            className="flex items-center justify-between gap-3 flex-wrap w-full text-left transition-all active:scale-[0.98]"
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 font-bold ${active ? 'bg-teal-600 text-white' : 'bg-slate-300 dark:bg-slate-700 text-slate-600 dark:text-slate-300'}`}>
+                                {m.letter}
+                              </div>
+                              <div>
+                                <div className="flex items-center gap-2">
+                                  <span className="font-bold text-slate-900 dark:text-white">{m.label}</span>
+                                  {m.sub && (
+                                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400">
+                                      {m.sub}
+                                    </span>
+                                  )}
+                                </div>
+                                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Phân quyền tự động theo tài khoản đăng nhập</p>
+                              </div>
+                            </div>
+                            {active && (
+                              <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full shrink-0 ${perms.allowedRoles.length > 0
+                                ? 'bg-teal-50 dark:bg-teal-500/10 text-teal-700 dark:text-teal-400'
+                                : 'bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400'}`}>
+                                {perms.allowedRoles.length > 0 ? 'RBAC ACTIVE' : 'DEV MODE'}
+                              </span>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
                   {/* Personal sales toggle */}
-                  <label className="personal-sales-toggle-base flex items-center justify-between p-3 bg-teal-50 dark:bg-teal-950/40 border border-teal-200 dark:border-teal-800 rounded-xl mb-4 cursor-pointer">
+                  <label className="personal-sales-toggle-base flex items-center justify-between p-3 bg-teal-50 dark:bg-teal-950/40 border border-teal-200 dark:border-teal-800 rounded-xl cursor-pointer">
                     <div>
                       <div className="font-medium text-sm text-teal-900 dark:text-teal-200">Có phát sinh doanh số cá nhân trong tháng?</div>
                       <div className="text-xs text-teal-600 dark:text-teal-400 mt-0.5">Nếu có, sẽ tính dồn thêm FYC + Thưởng cá nhân</div>
@@ -274,30 +321,61 @@ function AppInner() {
                       <div className="toggle-track peer-checked:bg-teal-600 w-11 h-6 bg-slate-200 rounded-full relative"></div>
                     </div>
                   </label>
-                  <div className="bg-slate-50 dark:bg-slate-950/40 p-1.5 rounded-xl border border-slate-200 dark:border-white/[0.04] grid grid-cols-3 gap-1.5">
-                    {TABS[1].roles.filter(isRoleVisible).map(r => {
-                      const m = ROLE_META[r];
-                      return (
-                        <button
-                          key={r} data-role={r}
-                          onClick={() => handleRoleClick(r)}
-                          className={`role-btn role-btn-base rounded-lg py-4 px-2 flex flex-col items-center justify-center gap-1.5 transition-all duration-200 hover:scale-[1.02] active:scale-95 min-h-[72px] ${role === r ? 'active' : ''}`}
-                        >
-                          <span className="font-bold text-lg text-teal-700 dark:text-teal-400">{m.letter}</span>
-                          <span className="font-medium text-sm">{m.label}</span>
-                          {m.sub && <span className="text-[10px] uppercase tracking-wider text-slate-400 dark:text-slate-500">{m.sub}</span>}
-                        </button>
-                      );
-                    })}
-                  </div>
                 </div>
               )}
 
               {/* Tab: SM+ */}
               {activeTab === 'sm' && (
                 <div id="tab-panel-sm">
+                  <div className="rounded-xl border border-slate-200 dark:border-white/[0.06] bg-slate-50 dark:bg-slate-950/40 p-4 mb-4">
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Chức danh của bạn</span>
+                      <span className="text-[11px] text-slate-400 dark:text-slate-500 flex items-center gap-1">
+                        <span className={`w-1.5 h-1.5 rounded-full ${perms.allowedRoles.length > 0 ? 'bg-teal-500' : 'bg-amber-500'}`}></span>
+                        Tài khoản đăng nhập
+                      </span>
+                    </div>
+                    <div className="flex flex-col gap-3">
+                      {smVisibleRoles.map(r => {
+                        const m = ROLE_META[r];
+                        const active = role === r;
+                        return (
+                          <button
+                            key={r} data-role={r}
+                            onClick={() => handleRoleClick(r)}
+                            className="flex items-center justify-between gap-3 flex-wrap w-full text-left transition-all active:scale-[0.98]"
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 font-bold ${active ? 'bg-teal-600 text-white' : 'bg-slate-300 dark:bg-slate-700 text-slate-600 dark:text-slate-300'}`}>
+                                {m.letter || m.label[0]}
+                              </div>
+                              <div>
+                                <div className="flex items-center gap-2">
+                                  <span className="font-bold text-slate-900 dark:text-white">{m.label}</span>
+                                  {m.sub && (
+                                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400">
+                                      {m.sub}
+                                    </span>
+                                  )}
+                                </div>
+                                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Phân quyền tự động theo tài khoản đăng nhập</p>
+                              </div>
+                            </div>
+                            {active && (
+                              <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full shrink-0 ${perms.allowedRoles.length > 0
+                                ? 'bg-teal-50 dark:bg-teal-500/10 text-teal-700 dark:text-teal-400'
+                                : 'bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400'}`}>
+                                {perms.allowedRoles.length > 0 ? 'RBAC ACTIVE' : 'DEV MODE'}
+                              </span>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
                   {/* Personal sales toggle */}
-                  <label className="personal-sales-toggle-base flex items-center justify-between p-3 bg-teal-50 dark:bg-teal-950/40 border border-teal-200 dark:border-teal-800 rounded-xl mb-4 cursor-pointer">
+                  <label className="personal-sales-toggle-base flex items-center justify-between p-3 bg-teal-50 dark:bg-teal-950/40 border border-teal-200 dark:border-teal-800 rounded-xl cursor-pointer">
                     <div>
                       <div className="font-medium text-sm text-teal-900 dark:text-teal-200">Có phát sinh doanh số cá nhân trong tháng?</div>
                       <div className="text-xs text-teal-600 dark:text-teal-400 mt-0.5">Nếu có, sẽ tính dồn thêm FYC + Thưởng cá nhân</div>
@@ -311,20 +389,6 @@ function AppInner() {
                       <div className="toggle-track peer-checked:bg-teal-600 w-11 h-6 bg-slate-200 rounded-full relative"></div>
                     </div>
                   </label>
-                  <div className="bg-slate-50 dark:bg-slate-950/40 p-1.5 rounded-xl border border-slate-200 dark:border-white/[0.04] grid grid-cols-4 gap-1.5">
-                    {TABS[2].roles.filter(isRoleVisible).map(r => {
-                      const m = ROLE_META[r];
-                      return (
-                        <button
-                          key={r} data-role={r}
-                          onClick={() => handleRoleClick(r)}
-                          className={`role-btn role-btn-base rounded-lg py-4 px-2 flex flex-col items-center justify-center gap-1.5 transition-all duration-200 hover:scale-[1.02] active:scale-95 min-h-[72px] ${role === r ? 'active' : ''}`}
-                        >
-                          <span className="font-medium text-sm">{m.label}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
                 </div>
               )}
 
@@ -387,7 +451,7 @@ function AppInner() {
             {/* Card 6: Khoản Thưởng Khác */}
             <div className="card-base">
               <h2 className="card-title">
-                <i className="fa-solid fa-circle-plus text-emerald-600 dark:text-emerald-400"></i> Khoản Thưởng Khác (Nếu có)
+                <i className="fa-solid fa-circle-plus text-teal-600 dark:text-teal-400"></i> Khoản Thưởng Khác (Nếu có)
               </h2>
               <p className="text-xs text-slate-400 dark:text-slate-500 mb-4">
                 Áp dụng cho tất cả chức danh. Số tiền sẽ được cộng trực tiếp vào Tổng Thu Nhập.
@@ -434,7 +498,7 @@ function AppInner() {
                     <span className="text-[10px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-full bg-white/[0.06] text-slate-300 border border-white/[0.08]">
                       M{state.monthMode}
                     </span>
-                    {isFC(role) && (
+                    {(isFC(role) || ((isSL(role) || isSM(role)) && state.hasPersonalSales)) && (
                       <span className="text-[10px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-full bg-yellow-500/15 text-yellow-300 border border-yellow-500/20 ml-auto">
                         <i className="fa-solid fa-star mr-1"></i>AiTOM Hạng {state.aitom}
                       </span>
@@ -442,9 +506,9 @@ function AppInner() {
                   </div>
 
                   {/* FYP Summary Card */}
-                  <div id="fyp-summary-card" className="bg-white/[0.04] backdrop-blur-lg border border-white/[0.06] rounded-2xl p-4 shadow-[0_4px_16px_0_rgba(0,0,0,0.3)] text-white">
-                    <h3 className="text-teal-300/70 uppercase tracking-widest text-[10px] font-bold mb-3">
-                      <i className="fa-solid fa-chart-column mr-1"></i> Tổng Hợp Doanh Số FYP
+                  <div id="fyp-summary-card" className="glass-card p-4">
+                    <h3 className="text-teal-300/80 font-[family-name:var(--font-display)] text-xs font-semibold mb-3">
+                      <i className="fa-solid fa-chart-column mr-1"></i> Tổng hợp doanh số FYP
                     </h3>
                     <div className="space-y-1.5 text-xs">
                       <FypSummaryCard />
@@ -452,9 +516,9 @@ function AppInner() {
                   </div>
 
                   {/* Main Result Card */}
-                  <div className="bg-white/[0.04] backdrop-blur-lg border border-white/[0.06] rounded-2xl p-5 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] text-white">
+                  <div className="glass-card p-5">
                     <div className="flex items-center justify-between gap-2 mb-2">
-                      <h3 id="result-title" className="text-teal-300/70 uppercase tracking-widest text-[10px] font-bold">
+                      <h3 id="result-title" className="text-teal-300/80 font-[family-name:var(--font-display)] text-xs font-semibold">
                         {resultTitle}
                       </h3>
                       <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-teal-500/15 text-teal-300 border border-teal-500/20 shrink-0">
@@ -514,28 +578,6 @@ function AppInner() {
                     </div>
                   </div>
 
-                  {/* Chart Toggle (mobile only) */}
-                  <button
-                    id="toggle-chart-btn"
-                    className="w-full py-3 mt-4 mb-2 bg-white/5 border border-white/10 rounded-xl text-teal-300 text-sm font-semibold flex items-center justify-center gap-2 mt-auto shrink-0 z-10 relative lg:hidden hover:bg-white/10 transition-colors"
-                    onClick={() => setChartOpen(o => !o)}
-                  >
-                    <i className="fa-solid fa-chart-line"></i> Xem biểu đồ Tăng Trưởng
-                  </button>
-
-                  {/* Chart Card */}
-                  <div id="chart-card" className={`bg-white/[0.04] backdrop-blur-lg border border-white/[0.06] rounded-2xl p-5 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] text-white mt-auto shrink-0 z-10 relative ${chartOpen ? 'block' : 'hidden lg:block'}`}>
-                    <div className="flex justify-between items-center mb-6">
-                      <h3 className="font-medium text-teal-100 flex items-center gap-2 text-sm">
-                        <i className="fa-solid fa-chart-area"></i> Tăng Trưởng
-                      </h3>
-                      <span className="text-[9px] text-teal-400 bg-teal-950/50 px-2 py-1 rounded uppercase tracking-wider font-semibold border border-teal-800/50">Theo FYP</span>
-                    </div>
-                    <div className="relative h-40 w-full">
-                      <GrowthChart />
-                    </div>
-                  </div>
-
                 </div>{/* End Phone Screen */}
               </div>
             </div>
@@ -589,7 +631,8 @@ function AuthGate({ children }) {
 export default function App() {
   // Launcher nội bộ xem nhanh giao diện theo chức danh — không cần đăng nhập,
   // không cần state của app chính.
-  if (window.location.pathname === '/previewpage') {
+  // Chỉ có ở dev: bản production không lộ trang này cho người chưa đăng nhập.
+  if (import.meta.env.DEV && window.location.pathname === '/previewpage') {
     return (
       <React.Suspense fallback={<div className="p-8 text-slate-400">Đang tải...</div>}>
         <PreviewPage />

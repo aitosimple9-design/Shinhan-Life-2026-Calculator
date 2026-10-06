@@ -36,26 +36,28 @@ export default function K2Selector() {
   return (
     <div>
       <div className="flex items-center justify-between mb-1.5">
-        <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Hệ số K2</span>
+        <span className="text-xs font-bold text-slate-500 dark:text-slate-400">Hệ số K2</span>
         <span className="text-[11px] text-slate-400 dark:text-slate-500">{subtitle}</span>
       </div>
       <label className={`flex items-center gap-1.5 w-full border-2 rounded-lg px-3 py-2.5 cursor-text focus-within:ring-4 transition-all duration-200 ease-out ${tier.box} ${tier.ring}`}>
         <span className="text-sm text-slate-500 dark:text-slate-400 shrink-0">K2 ≥</span>
-        <input
-          type="number"
-          min="0"
-          max="150"
-          step="1"
-          className={`w-12 bg-transparent text-base font-extrabold outline-none [appearance:textfield] ${tier.num}`}
-          value={typeof curVal === 'number' ? curVal : ''}
-          onChange={(e) => {
-            let v = Number(e.target.value);
-            if (!Number.isFinite(v) || v < 0) v = 0;
-            if (v > 150) v = 150;
-            dispatch({ type: 'UPDATE_STATE', payload: { key: 'k2Bracket', value: v } });
-          }}
-        />
-        <span className="text-sm text-slate-500 dark:text-slate-400 shrink-0">%</span>
+        <span className="flex items-baseline shrink-0">
+          <input
+            type="text"
+            inputMode="numeric"
+            pattern="[0-9]*"
+            style={{ width: `${Math.max(1, String(typeof curVal === 'number' ? curVal : '').length)}ch` }}
+            className={`bg-transparent text-base font-extrabold outline-none ${tier.num}`}
+            value={typeof curVal === 'number' ? curVal : ''}
+            onChange={(e) => {
+              const digits = e.target.value.replace(/\D/g, '');
+              let v = digits === '' ? 0 : Number(digits);
+              if (v > 150) v = 150;
+              dispatch({ type: 'UPDATE_STATE', payload: { key: 'k2Bracket', value: v } });
+            }}
+          />
+          <span className={`text-sm font-bold ml-0.5 ${tier.num} opacity-70`}>%</span>
+        </span>
         <span className="flex-1"></span>
         <span className={`text-xs font-bold shrink-0 ${tier.text}`}>(Hệ số ×{coef.toFixed(2)})</span>
         <i className={`fa-solid fa-chevron-down text-xs shrink-0 ${tier.text}`}></i>
