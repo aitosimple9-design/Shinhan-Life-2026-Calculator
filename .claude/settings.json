@@ -3,5 +3,9 @@
     "allow_file_write": true,
     "allow_terminal_exec": true
   },
+  "enabledPlugins": {
+    "claude-security@anthropic-plugin-directory": true,
+    "code-review@anthropic-plugin-directory": true
+  },
   "environment": "development"
 }

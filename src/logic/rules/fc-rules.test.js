@@ -5,6 +5,7 @@
 // ============================================================
 import { describe, it, expect } from 'vitest';
 import {
+    calculateStarFCSupport,
     getK2Coefficient_FC,
     getMonthBonusRate,
     calculateQuarterBonus,
@@ -324,5 +325,27 @@ describe('calculatePartnerBonus — thưởng Shinhan Partner (Bảng 9)', () =>
         const bonus50  = calculatePartnerBonus('G', 75, 50, 0.30);
         const bonus100 = calculatePartnerBonus('G', 75, 100, 0.30);
         expect(bonus100).toBeCloseTo(bonus50 * 2);
+    });
+});
+
+describe('calculateStarFCSupport — M1 (Bảng 1)', () => {
+    it('hạng S/A/B đều nhận mức 2 (1 HĐ, FYP >= 15tr)', () => {
+        for (const g of ['S', 'A', 'B']) {
+            expect(calculateStarFCSupport(15_000_000, 1, 0, '1', 1, g)).toBe(2.5);
+        }
+    });
+    it('hạng S/A/B đều nhận mức 1 (1 HĐ, FYP >= 10tr)', () => {
+        for (const g of ['S', 'A', 'B']) {
+            expect(calculateStarFCSupport(10_000_000, 1, 0, '1', 1, g)).toBe(1.0);
+        }
+    });
+    it('hạng C không nhận hỗ trợ M1', () => {
+        expect(calculateStarFCSupport(15_000_000, 1, 0, '1', 1, 'C')).toBe(0);
+    });
+    it('M1 KHÔNG nhân K2', () => {
+        expect(calculateStarFCSupport(25_000_000, 3, 0, '1', 0.5, 'A')).toBe(4.0);
+    });
+    it('M2-M7 vẫn nhân K2', () => {
+        expect(calculateStarFCSupport(20_000_000, 0, 0, '2-7', 0.5, 'B')).toBe(0.7);
     });
 });

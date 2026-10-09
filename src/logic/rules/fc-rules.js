@@ -113,11 +113,12 @@ export function calculateStarFCSupport(fypRaw, numContracts, referralFypRaw, mon
     // Mức 1: >= 1 HĐ, FYP >= 10tr, AiTOM B  => 1,0 triệu
     // ----------------------------------------------------------
     if (month === '1') {
+        const isAtLeastB = ['S', 'A', 'B'].includes(grade);
         if (numContracts >= 3 && fypMil >= 25 && (grade === 'A' || grade === 'S')) {
             supportMil = 4.0;
-        } else if (numContracts >= 1 && fypMil >= 15 && grade === 'B') {
+        } else if (numContracts >= 1 && fypMil >= 15 && isAtLeastB) {
             supportMil = 2.5;
-        } else if (numContracts >= 1 && fypMil >= 10 && grade === 'B') {
+        } else if (numContracts >= 1 && fypMil >= 10 && isAtLeastB) {
             supportMil = 1.0;
         }
 
@@ -191,7 +192,8 @@ export function calculateStarFCSupport(fypRaw, numContracts, referralFypRaw, mon
         }
     }
 
-    return roundMil(supportMil * k2Coef);
+    // Bảng 1 (M1) KHÔNG nhân K2; Bảng 3, 4, 5 nhân K2.
+    return roundMil(month === '1' ? supportMil : supportMil * k2Coef);
 }
 
 // ============================================================
