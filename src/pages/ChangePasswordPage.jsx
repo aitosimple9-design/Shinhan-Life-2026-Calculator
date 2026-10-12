@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext.jsx';
 
-export default function ChangePasswordPage({ onDone }) {
-  const { updatePassword } = useAuth();
+export default function ChangePasswordPage({ onDone, forced = false }) {
+  const { updatePassword, signOut } = useAuth();
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
@@ -12,8 +12,8 @@ export default function ChangePasswordPage({ onDone }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    if (newPassword.length < 6) {
-      setError('Mật khẩu mới phải có ít nhất 6 ký tự.');
+    if (newPassword.length < 8) {
+      setError('Mật khẩu mới phải có ít nhất 8 ký tự.');
       return;
     }
     if (newPassword !== confirmPassword) {
@@ -32,17 +32,22 @@ export default function ChangePasswordPage({ onDone }) {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-900 px-4">
-      <div className="w-full max-w-sm bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-xl shadow-black/5 p-6 space-y-4">
-        <h1 className="text-lg font-bold text-slate-900 dark:text-white text-center">Đổi mật khẩu</h1>
+      <div className="card-base w-full max-w-sm space-y-4">
+        <h1 className="font-[family-name:var(--font-display)] text-lg font-bold text-slate-900 dark:text-white text-center">Đổi mật khẩu</h1>
+        {forced && !success && (
+          <p className="text-sm text-slate-500 dark:text-slate-400 text-center">
+            Bạn đang dùng mật khẩu mặc định. Vui lòng đặt mật khẩu mới để tiếp tục.
+          </p>
+        )}
 
         {success ? (
           <div className="space-y-4">
-            <p className="text-sm text-emerald-600 dark:text-emerald-400 text-center">
+            <p className="text-sm text-teal-600 dark:text-teal-400 text-center">
               Đổi mật khẩu thành công.
             </p>
             <button
               onClick={onDone}
-              className="w-full py-2.5 rounded-lg font-semibold text-white bg-teal-600 hover:bg-teal-700 active:scale-95 transition-all duration-150"
+              className="w-full py-2.5 rounded-[var(--radius-control)] font-semibold text-white bg-teal-600 hover:bg-teal-700 active:scale-95 transition-all duration-150"
             >
               Quay lại
             </button>
@@ -50,24 +55,24 @@ export default function ChangePasswordPage({ onDone }) {
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">Mật khẩu mới</label>
+              <label className="input-label">Mật khẩu mới</label>
               <input
                 type="password"
                 autoComplete="new-password"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
-                className="w-full bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 text-sm rounded-lg focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 focus:outline-none block p-2.5 transition-all duration-200 ease-out"
+                className="input-base"
                 placeholder="••••••••"
               />
             </div>
             <div>
-              <label className="block text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">Nhập lại mật khẩu mới</label>
+              <label className="input-label">Nhập lại mật khẩu mới</label>
               <input
                 type="password"
                 autoComplete="new-password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 text-sm rounded-lg focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 focus:outline-none block p-2.5 transition-all duration-200 ease-out"
+                className="input-base"
                 placeholder="••••••••"
               />
             </div>
@@ -77,15 +82,15 @@ export default function ChangePasswordPage({ onDone }) {
             <div className="flex gap-2">
               <button
                 type="button"
-                onClick={onDone}
-                className="flex-1 py-2.5 rounded-lg font-semibold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 active:scale-95 transition-all duration-150"
+                onClick={forced ? signOut : onDone}
+                className="flex-1 py-2.5 rounded-[var(--radius-control)] font-semibold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 active:scale-95 transition-all duration-150"
               >
-                Huỷ
+                {forced ? 'Đăng xuất' : 'Huỷ'}
               </button>
               <button
                 type="submit"
                 disabled={submitting}
-                className="flex-1 py-2.5 rounded-lg font-semibold text-white bg-teal-600 hover:bg-teal-700 active:scale-95 transition-all duration-150 disabled:opacity-60"
+                className="flex-1 py-2.5 rounded-[var(--radius-control)] font-semibold text-white bg-teal-600 hover:bg-teal-700 active:scale-95 transition-all duration-150 disabled:opacity-60"
               >
                 {submitting ? 'Đang lưu...' : 'Lưu'}
               </button>

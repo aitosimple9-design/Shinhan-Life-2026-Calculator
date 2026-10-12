@@ -22,3 +22,10 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Script/du lieu tai khoan (chua ten, ma nhan vien, mat khau tam)
+*.local.*
+
+# Python bytecode
+__pycache__/
+*.pyc

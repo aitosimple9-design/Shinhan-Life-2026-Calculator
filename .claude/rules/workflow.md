@@ -35,3 +35,18 @@ Dựa trên nguyên lý của **Martin Fowler** và **Kent C. Dodds**.
 - **Tháng không hợp lệ**: Fallback về tháng đầu tiên của nhóm đang hiển thị.
 - **State thiếu key**: Mọi key trong `state` phải có giá trị mặc định khi khởi tạo.
 - **DOM element không tìm thấy**: Dùng `if (el)` guard trước mọi thao tác DOM.
+
+## 4. Báo Cáo Sau Mỗi Lần Sửa (BỔ SUNG V2)
+
+**Sau khi hoàn tất bất kỳ thay đổi nào**, AI PHẢI trình bày một bảng báo cáo cho người dùng gồm các cột:
+
+| File đã sửa | Chỗ sửa là gì | Việc cần làm để hệ thống cập nhật |
+| :--- | :--- | :--- |
+
+- Cột "Chỗ sửa là gì": mô tả ngắn gọn thay đổi (không dán lại toàn bộ diff).
+- Cột "Việc cần làm để hệ thống cập nhật": nêu rõ hành động cần thiết để thấy thay đổi, ví dụ:
+  - Dev server (`npm run dev`) đang chạy → tự động Hot Module Reload (HMR), chỉ cần lưu file / reload trình duyệt nếu không tự cập nhật.
+  - Chưa chạy dev server → cần chạy `npm run dev` để xem trên `localhost`.
+  - Có sửa `package.json` / thêm dependency → cần chạy `npm install` trước khi `npm run dev`.
+  - Chuẩn bị deploy → cần chạy `npm run build`.
+- Báo cáo này áp dụng cho **mọi lần sửa file** trong dự án, không riêng gì 1 tác vụ cụ thể.

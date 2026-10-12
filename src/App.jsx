@@ -131,9 +131,13 @@ function AppInner() {
   const showPerks = isFC(role) || state.hasPersonalSales;
 
   // ── Auth: đăng xuất / đổi mật khẩu ─────────────────────────────────────────
-  const { signOut } = useAuth();
+  const { signOut, profile } = useAuth();
   const [showChangePassword, setShowChangePassword] = useState(false);
 
+  // Mật khẩu mặc định (ngày sinh + CCCD) phải được đổi ở lần đăng nhập đầu.
+  if (profile?.must_change_password) {
+    return <ChangePasswordPage forced onDone={() => {}} />;
+  }
   if (showChangePassword) {
     return <ChangePasswordPage onDone={() => setShowChangePassword(false)} />;
   }

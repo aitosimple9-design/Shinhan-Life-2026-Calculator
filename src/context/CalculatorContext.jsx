@@ -61,10 +61,6 @@ const initialState = {
   partner: 'none',
   mdrt: false,
 
-  // ---- UI state ----
-  fypInputMode: 'slider',
-  teamDirectInputMode: 'slider',
-
   // ---- Eye toggle (YC7) ----
   // Constraint #6: changed from Set to Array
   hiddenKeys: [],

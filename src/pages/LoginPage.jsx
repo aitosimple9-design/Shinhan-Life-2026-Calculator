@@ -22,37 +22,36 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-900 px-4">
-      <form
-        onSubmit={handleSubmit}
-        className="w-full max-w-sm bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-xl shadow-black/5 p-6 space-y-4"
-      >
-        <div className="text-center mb-2">
-          <i className="fa-solid fa-calculator text-teal-600 dark:text-teal-400 text-3xl mb-2"></i>
-          <h1 className="text-lg font-bold text-slate-900 dark:text-white">Shinhan Life 2026 Calculator</h1>
+      <form onSubmit={handleSubmit} className="card-base w-full max-w-sm space-y-4">
+        <div className="flex flex-col items-center text-center mb-2">
+          <div className="w-12 h-12 rounded-xl bg-teal-600 flex items-center justify-center text-white text-xl mb-3">
+            <i className="fa-solid fa-calculator"></i>
+          </div>
+          <h1 className="font-[family-name:var(--font-display)] text-lg font-bold text-slate-900 dark:text-white">Shinhan Life 2026 Calculator</h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Đăng nhập để tiếp tục</p>
         </div>
 
         <div>
-          <label className="block text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">Mã số nhân viên</label>
+          <label className="input-label">Mã số nhân viên</label>
           <input
             type="text"
             inputMode="numeric"
             autoComplete="username"
             value={employeeCode}
             onChange={(e) => setEmployeeCode(e.target.value)}
-            className="w-full bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 text-sm rounded-lg focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 focus:outline-none block p-2.5 transition-all duration-200 ease-out"
-            placeholder="VD: 60004226"
+            className="input-base"
+            placeholder="VD: 6000zzxx"
           />
         </div>
 
         <div>
-          <label className="block text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">Mật khẩu</label>
+          <label className="input-label">Mật khẩu</label>
           <input
             type="password"
             autoComplete="current-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 text-sm rounded-lg focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 focus:outline-none block p-2.5 transition-all duration-200 ease-out"
+            className="input-base"
             placeholder="••••••••"
           />
         </div>
@@ -64,7 +63,7 @@ export default function LoginPage() {
         <button
           type="submit"
           disabled={submitting}
-          className="w-full py-2.5 rounded-lg font-semibold text-white bg-teal-600 hover:bg-teal-700 active:scale-95 transition-all duration-150 disabled:opacity-60"
+          className="w-full py-2.5 rounded-[var(--radius-control)] font-semibold text-white bg-teal-600 hover:bg-teal-700 active:scale-95 transition-all duration-150 disabled:opacity-60"
         >
           {submitting ? 'Đang đăng nhập...' : 'Đăng nhập'}
         </button>
