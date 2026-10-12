@@ -8,7 +8,7 @@ const initialState = {
   // ---- FC / StarFC: Cá nhân ----
   fyp: 25000000,
   fycRate: 25,
-  k2Bracket: '80+',
+  k2Bracket: 80,
   aitom: 'A',
 
   // ---- FC: Thưởng quý ----
@@ -60,10 +60,6 @@ const initialState = {
   // ---- Quyền lợi (FC) ----
   partner: 'none',
   mdrt: false,
-
-  // ---- UI state ----
-  fypInputMode: 'slider',
-  teamDirectInputMode: 'slider',
 
   // ---- Eye toggle (YC7) ----
   // Constraint #6: changed from Set to Array

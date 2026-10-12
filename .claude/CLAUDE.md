@@ -18,7 +18,9 @@
 │   ├── researcher.md         <-- Sub-agent BA (Patrick Collison) chuyên phân tích số liệu
 │   └── reviewer.md           <-- Sub-agent QA/QC (Kent C. Dodds) chuyên test giao diện
 └── skills/                   <-- THƯ MỤC KỊCH BẢN TÁI SỬ DỤNG
-    └── calculate-income.md   <-- Skill quy trình tính toán thù lao tự động
+    ├── calculate-income.md   <-- Skill quy trình tính toán thù lao tự động
+    ├── frontend-design/      <-- Skill định hướng thiết kế UI đặc trưng, tránh giao diện rập khuôn (nguồn: davila7/claude-code-templates)
+    └── ui-design-system/     <-- Skill bộ công cụ design token, type scale, spacing grid (nguồn: davila7/claude-code-templates)
 ```
 
 ## 2. Index Liên Kết Chéo (Relative Links)

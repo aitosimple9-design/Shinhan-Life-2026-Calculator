@@ -1,5 +1,22 @@
 @import "tailwindcss";
 
+/* Tailwind v4 mặc định dùng prefers-color-scheme cho biến thể dark:, nên
+   nút bấm toggle (thêm/xoá class .dark trên <html>) không có tác dụng —
+   ép dark: chạy theo class .dark thay vì theo cài đặt hệ điều hành. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ============================================
+   DESIGN TOKENS
+   ============================================ */
+:root {
+    --font-display: 'Sora', ui-sans-serif, system-ui, sans-serif;
+    --radius-card: 1rem;       /* card-base ngoài cùng */
+    --radius-control: 0.625rem; /* input / button */
+    --radius-pill: 999px;      /* badge / toggle */
+    --shadow-card: 0 1px 2px 0 rgba(0,0,0,0.05);
+    --shadow-float: 0 8px 32px 0 rgba(0,0,0,0.37);
+}
+
 /* ============================================
    SCROLLBARS
    ============================================ */
@@ -22,49 +39,149 @@ input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin
 input[type=number] { -moz-appearance: textfield; }
 
 /* ============================================
-   ROLE TABS
+   PRO V2.1 — SHARED CARD / INPUT PRIMITIVES
+   (card-base, card-title, input-base, vnd-input-base dung chung toan bo
+   app — sua 1 cho de doi mau/kieu moi nhat quan cho FC, SL+, SM+)
    ============================================ */
-.role-tab { color: #94a3b8; background: transparent; }
-.role-tab.active { 
-    background: rgba(255,255,255,0.1); 
-    border: 1px solid rgba(255,255,255,0.1); 
-    color: white; 
-    font-weight: 700; 
-    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); 
+.card-base {
+    background: white;
+    border: 1px solid rgb(226 232 240);
+    border-radius: var(--radius-card);
+    padding: 1.25rem;
+    box-shadow: var(--shadow-card);
+}
+.dark .card-base {
+    background: rgba(30, 41, 59, 0.6);
+    border-color: rgba(255,255,255,0.06);
+    box-shadow: none;
+}
+/* Tiêu đề thật của card — không phải badge, nên không dùng uppercase nữa */
+.card-title {
+    display: flex; align-items: center; justify-content: flex-start; gap: 0.5rem;
+    font-family: var(--font-display);
+    font-size: 0.9375rem; font-weight: 700;
+    color: #0f172a; margin-bottom: 1rem;
+}
+.dark .card-title { color: #f1f5f9; }
+
+/* Card kính nổi trong phone mock (FYP summary / kết quả / chart) — gom 1 chỗ
+   thay vì lặp lại cùng chuỗi shadow arbitrary trong App.jsx */
+.glass-card {
+    background: rgba(255,255,255,0.04);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-float);
+    color: white;
+}
+
+.input-label { display: block; font-size: 0.75rem; font-weight: 500; color: #64748b; margin-bottom: 0.25rem; }
+.dark .input-label { color: #94a3b8; }
+
+.input-base {
+    width: 100%; background: #f8fafc; border: 1px solid rgb(226 232 240); color: #0f172a;
+    font-size: 0.875rem; border-radius: var(--radius-control); padding: 0.625rem; transition: all 0.2s ease;
+}
+.dark .input-base { background: #0f172a; border-color: #334155; color: #f1f5f9; }
+.input-base:focus { outline: none; border-color: #14b8a6; box-shadow: 0 0 0 2px rgba(20,184,166,0.5); }
+
+.vnd-input-base, .vnd-input-large {
+    width: 100%; background: #f8fafc; border: 1px solid rgb(226 232 240); color: #0f172a;
+    border-radius: var(--radius-control);
+    transition: all 0.2s ease;
+}
+.dark .vnd-input-base, .dark .vnd-input-large { background: #0f172a; border-color: #334155; color: #f1f5f9; }
+.vnd-input-base:focus-within, .vnd-input-large:focus-within {
+    border-color: rgb(20 184 166 / 0.6);
+    box-shadow: 0 0 0 4px rgba(15,118,110,0.12);
+}
+
+.perk-row-base { background: #f8fafc; border-color: rgb(241 245 249); }
+.dark .perk-row-base { background: rgba(30,41,59,0.5); border-color: #334155; }
+
+.appointment-btn { color: #64748b; }
+.dark .appointment-btn { color: #94a3b8; }
+
+/* ============================================
+   ROLE TABS (segmented control, nen sang)
+   ============================================ */
+.role-tab { color: #64748b; background: transparent; }
+.dark .role-tab { color: #94a3b8; }
+.role-tab.active {
+    background: white;
+    border: 1px solid rgb(226 232 240);
+    color: #0f172a;
+    font-weight: 700;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+.dark .role-tab.active {
+    background: rgba(255,255,255,0.08);
+    border-color: rgba(255,255,255,0.1);
+    color: white;
 }
 
 /* ============================================
-   ROLE BUTTONS (Migrated to HTML)
+   ROLE BUTTONS (grid FC/SL/SM — nen sang, active = vien mau nhom)
    ============================================ */
 .role-btn-base {
-    background: transparent;
-    border: 1px solid rgba(255,255,255,0.02);
+    background: rgb(248 250 252);
+    border: 1px solid rgb(226 232 240);
+    color: #64748b;
+}
+.dark .role-btn-base {
+    background: rgba(255,255,255,0.02);
+    border-color: rgba(255,255,255,0.06);
     color: #94a3b8;
 }
 .role-btn.active {
-    background-color: rgba(15, 118, 110, 0.8);
-    border-color: rgba(20, 184, 166, 0.3);
-    color: white;
-    box-shadow: 0 0 15px rgba(20, 184, 166, 0.25);
+    background-color: white;
+    border-color: #0f766e;
+    color: #0f766e;
+    box-shadow: 0 1px 3px 0 rgba(0,0,0,0.08);
+}
+.dark .role-btn.active {
+    background-color: rgba(15, 118, 110, 0.15);
+    border-color: rgba(20, 184, 166, 0.5);
+    color: #5eead4;
 }
 
 /* ============================================
-   MONTH BUTTONS
+   MONTH BUTTONS (segmented — active = trang/vien, khong con to mau dac)
    ============================================ */
-.month-btn.active { background-color: #0f766e; color: white; }
-.dark .month-btn.active { background-color: #0d9488; color: white; }
+.month-btn { color: #64748b; }
+.dark .month-btn { color: #cbd5e1; }
+.month-btn.active {
+    background-color: white;
+    color: #0f172a;
+    border: 1px solid rgb(226 232 240);
+    box-shadow: 0 1px 2px 0 rgba(0,0,0,0.06);
+    font-weight: 600;
+}
+.dark .month-btn.active {
+    background-color: rgba(255,255,255,0.08);
+    border-color: rgba(255,255,255,0.1);
+    color: white;
+}
 
 /* ============================================
-   AITOM GRADE BUTTONS (Migrated to HTML)
+   AITOM GRADE BUTTONS (active = trang/vien giong month-btn)
    ============================================ */
 .aitom-btn {
-    background: transparent; border: 1px solid rgba(255,255,255,0.02); color: #94a3b8;
+    background: rgb(248 250 252); border: 1px solid rgb(226 232 240); color: #64748b;
+}
+.dark .aitom-btn {
+    background: rgba(255,255,255,0.02); border-color: rgba(255,255,255,0.06); color: #94a3b8;
 }
 .aitom-btn.active {
-    background-color: rgba(15, 118, 110, 0.8);
-    border-color: rgba(20, 184, 166, 0.3);
-    color: white; 
-    box-shadow: 0 0 15px rgba(20, 184, 166, 0.25);
+    background-color: white;
+    border-color: #0f766e;
+    color: #0f766e;
+    box-shadow: 0 1px 3px 0 rgba(0,0,0,0.08);
+}
+.dark .aitom-btn.active {
+    background-color: rgba(15, 118, 110, 0.15);
+    border-color: rgba(20, 184, 166, 0.5);
+    color: #5eead4;
 }
 
 /* ============================================
@@ -108,25 +225,6 @@ input.peer:checked ~ .toggle-track::after { transform: translateX(20px); }
 }
 .vnd-input-large:focus {
     box-shadow: 0 0 0 4px rgba(15,118,110,0.12);
-}
-
-/* ============================================
-   RANGE INPUT
-   ============================================ */
-.range-input::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: #0f766e;
-    border: 2px solid white;
-    cursor: pointer;
-    transition: box-shadow 0.2s ease, background 0.2s ease;
-}
-.range-input::-webkit-slider-thumb:hover {
-    background: #14b8a6;
-    box-shadow: 0 0 10px rgba(20, 184, 166, 0.5);
 }
 
 /* ============================================
@@ -239,6 +337,17 @@ input.peer:checked ~ .toggle-track::after { transform: translateX(20px); }
    TOTAL INCOME NUMBER — smooth transition
    ============================================ */
 #total-income {
+    font-family: var(--font-display);
     transition: color 0.3s ease;
+    font-variant-numeric: tabular-nums;
+}
+
+/* ============================================
+   NUMERIC READOUTS — canh cột khi số đổi (breakdown rows,
+   FYP summary, SM target/actual...)
+   ============================================ */
+.breakdown-val,
+.fyp-summary-row span,
+.tabular-num {
     font-variant-numeric: tabular-nums;
 }

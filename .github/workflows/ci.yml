@@ -1,0 +1,90 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+# Quyền tối thiểu cho GITHUB_TOKEN.
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm test
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      # Build không cần secret: VITE_SUPABASE_* thật được đặt trên nền tảng deploy (Vercel).
+      - run: npm run build
+
+  security:
+    name: Security
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      # Chỉ chặn lỗ hổng mức cao trở lên của gói chạy thật (không tính devDependencies).
+      - run: npm audit --omit=dev --audit-level=high
+      # Chặn commit nhầm bí mật (service_role key, file .env, ...).
+      - name: Không được commit bí mật
+        run: |
+          if git ls-files | grep -E '(^|/)\.env($|\.local)'; then
+            echo "::error::Có file bí mật/cục bộ đang được theo dõi bởi git"; exit 1
+          fi
+          if git grep -nIE 'service_role[^a-zA-Z_]*["'"'"'`:=]+ *eyJ|SUPABASE_SERVICE_ROLE_KEY *= *[A-Za-z0-9._-]{20,}' -- . ':!.github' ':!*.md'; then
+            echo "::error::Phát hiện service_role key trong mã nguồn"; exit 1
+          fi
+
+  # Job "cổng": chỉ một tên duy nhất để đặt làm Required check trong branch protection.
+  ci-pass:
+    name: CI passed
+    if: always()
+    needs: [lint, test, build, security]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Tất cả job bắt buộc phải thành công
+        run: |
+          echo '${{ toJSON(needs) }}'
+          if echo '${{ toJSON(needs) }}' | grep -qE '"result": "(failure|cancelled)"'; then exit 1; fi

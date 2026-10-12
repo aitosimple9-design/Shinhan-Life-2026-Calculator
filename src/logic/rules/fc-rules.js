@@ -21,21 +21,19 @@ function roundMil(val) {
 
 /**
  * Tra hệ số K2 cho chức danh FC / StarFC.
- * @param {string} bracket  - Mức ngưỡng K2 ('80+', '70-80', ...)
+ * @param {number} k2Pct     - K2 cá nhân thực đạt (%, số thô, 0-150)
  * @param {string} monthMode - Tháng hoạt động ('1', '2-7', '8-13', '14-19', '13+', ...)
  * @returns {number}
  */
-export function getK2Coefficient_FC(bracket, monthMode) {
+export function getK2Coefficient_FC(k2Pct, monthMode) {
     const isM12Plus = ['12+', '12', '13+', '12-15', '16+', '14-19', '20+'].includes(monthMode);
-    switch (bracket) {
-        case '<50':   return 0.45;
-        case '50-60': return 0.50;
-        case '60-65': return 0.65;
-        case '65-70': return 0.80;
-        case '70-80': return 1.00;
-        case '80+':   return isM12Plus ? 1.20 : 1.00;
-        default:      return 1.00;
-    }
+    const pct = safeNum(k2Pct);
+    if (pct < 50) return pct / 100;
+    if (pct < 60) return 0.50;
+    if (pct < 65) return 0.65;
+    if (pct < 70) return 0.80;
+    if (pct < 80) return 1.00;
+    return isM12Plus ? 1.20 : 1.00;
 }
 
 // ============================================================
@@ -50,11 +48,11 @@ export function getK2Coefficient_FC(bracket, monthMode) {
  */
 export function getMonthBonusRate(fypMil, aitom) {
     const isHighGrade = ['S', 'A'].includes(aitom);
-    if      (fypMil >= 10  && fypMil < 25)  return 0.10;
-    else if (fypMil >= 25  && fypMil < 45)  return isHighGrade ? 0.18 : 0.15;
-    else if (fypMil >= 45  && fypMil < 70)  return isHighGrade ? 0.23 : 0.20;
-    else if (fypMil >= 70  && fypMil < 100) return isHighGrade ? 0.28 : 0.25;
-    else if (fypMil >= 100)                 return isHighGrade ? 0.33 : 0.30;
+    if (fypMil >= 10 && fypMil < 25) return 0.10;
+    else if (fypMil >= 25 && fypMil < 45) return isHighGrade ? 0.18 : 0.15;
+    else if (fypMil >= 45 && fypMil < 70) return isHighGrade ? 0.23 : 0.20;
+    else if (fypMil >= 70 && fypMil < 100) return isHighGrade ? 0.28 : 0.25;
+    else if (fypMil >= 100) return isHighGrade ? 0.33 : 0.30;
     return 0;
 }
 
@@ -72,15 +70,15 @@ export function getMonthBonusRate(fypMil, aitom) {
  */
 export function calculateQuarterBonus(qFypMil, fycRate, quarterActiveMonths, k2Coef) {
     let qBonusRate = 0;
-    if      (qFypMil >= 75  && qFypMil < 135) qBonusRate = 0.06;
+    if (qFypMil >= 75 && qFypMil < 135) qBonusRate = 0.06;
     else if (qFypMil >= 135 && qFypMil < 210) qBonusRate = 0.08;
     else if (qFypMil >= 210 && qFypMil < 300) qBonusRate = 0.10;
-    else if (qFypMil >= 300)                  qBonusRate = 0.12;
+    else if (qFypMil >= 300) qBonusRate = 0.12;
 
     if (qBonusRate === 0) return 0;
 
     const activeCoef = quarterActiveMonths == 3 ? 1.2
-                     : quarterActiveMonths == 2 ? 1.0 : 0.8;
+        : quarterActiveMonths == 2 ? 1.0 : 0.8;
     const qFyc = qFypMil * fycRate;
     return roundMil((qFyc * qBonusRate * activeCoef * k2Coef) / 3);
 }
@@ -103,10 +101,10 @@ export function calculateQuarterBonus(qFypMil, fycRate, quarterActiveMonths, k2C
  */
 export function calculateStarFCSupport(fypRaw, numContracts, referralFypRaw, month, k2Coef, aiTomGrade) {
     // Quy đổi sang triệu VNĐ để tra bảng
-    const fypMil       = safeNum(fypRaw)       / 1_000_000;
-    const referralMil  = safeNum(referralFypRaw) / 1_000_000;
-    const grade        = String(aiTomGrade || '').toUpperCase();
-    let   supportMil   = 0;
+    const fypMil = safeNum(fypRaw) / 1_000_000;
+    const referralMil = safeNum(referralFypRaw) / 1_000_000;
+    const grade = String(aiTomGrade || '').toUpperCase();
+    let supportMil = 0;
 
     // ----------------------------------------------------------
     // Bảng 1 — Đánh giá tháng M1
@@ -123,15 +121,15 @@ export function calculateStarFCSupport(fypRaw, numContracts, referralFypRaw, mon
             supportMil = 1.0;
         }
 
-    // ----------------------------------------------------------
-    // Bảng 3 — Giai đoạn M2-M7
-    // Cột FYP: [20-40), [40-60), [60-80), >=80  (triệu)
-    // Hàng AiTOM: A/S | B | C
-    // ----------------------------------------------------------
+        // ----------------------------------------------------------
+        // Bảng 3 — Giai đoạn M2-M7
+        // Cột FYP: [20-40), [40-60), [60-80), >=80  (triệu)
+        // Hàng AiTOM: A/S | B | C
+        // ----------------------------------------------------------
     } else if (month === '2-7') {
         // Xác định cột FYP
         let col = -1; // -1 = dưới ngưỡng
-        if      (fypMil >= 80) col = 3;
+        if (fypMil >= 80) col = 3;
         else if (fypMil >= 60) col = 2;
         else if (fypMil >= 40) col = 1;
         else if (fypMil >= 20) col = 0;
@@ -146,49 +144,49 @@ export function calculateStarFCSupport(fypRaw, numContracts, referralFypRaw, mon
             }
         }
 
-    // ----------------------------------------------------------
-    // Bảng 4 — Giai đoạn M8-M13
-    // Cột FYP: [30-50), [50-70), [70-100), >=100  (triệu)
-    // Hàng AiTOM: S | A | B
-    // ----------------------------------------------------------
+        // ----------------------------------------------------------
+        // Bảng 4 — Giai đoạn M8-M13
+        // Cột FYP: [30-50), [50-70), [70-100), >=100  (triệu)
+        // Hàng AiTOM: S | A | B
+        // ----------------------------------------------------------
     } else if (month === '8-13') {
         let col = -1;
-        if      (fypMil >= 100) col = 3;
-        else if (fypMil >= 70)  col = 2;
-        else if (fypMil >= 50)  col = 1;
-        else if (fypMil >= 30)  col = 0;
+        if (fypMil >= 100) col = 3;
+        else if (fypMil >= 70) col = 2;
+        else if (fypMil >= 50) col = 1;
+        else if (fypMil >= 30) col = 0;
 
         if (col >= 0) {
             if (grade === 'S') {
                 supportMil = [4.0, 8.0, 13.0, 20.0][col];
             } else if (grade === 'A') {
-                supportMil = [3.4, 6.0,  9.0, 18.0][col];
+                supportMil = [3.4, 6.0, 9.0, 18.0][col];
             } else if (grade === 'B') {
-                supportMil = [2.3, 4.0,  6.0, 15.0][col];
+                supportMil = [2.3, 4.0, 6.0, 15.0][col];
             }
         }
 
-    // ----------------------------------------------------------
-    // Bảng 5 — Giai đoạn M14-M19
-    // Hàng: FYP giới thiệu (referral): >=60 | [40-60) | [20-40)  (triệu)
-    // Cột:  FYP cá nhân:               [40-60) | [60-80) | [80-100) | >=100  (triệu)
-    // ----------------------------------------------------------
+        // ----------------------------------------------------------
+        // Bảng 5 — Giai đoạn M14-M19
+        // Hàng: FYP giới thiệu (referral): >=60 | [40-60) | [20-40)  (triệu)
+        // Cột:  FYP cá nhân:               [40-60) | [60-80) | [80-100) | >=100  (triệu)
+        // ----------------------------------------------------------
     } else if (month === '14-19') {
         // Xác định cột FYP cá nhân
         let col = -1;
-        if      (fypMil >= 100) col = 3;
-        else if (fypMil >= 80)  col = 2;
-        else if (fypMil >= 60)  col = 1;
-        else if (fypMil >= 40)  col = 0;
+        if (fypMil >= 100) col = 3;
+        else if (fypMil >= 80) col = 2;
+        else if (fypMil >= 60) col = 1;
+        else if (fypMil >= 40) col = 0;
 
         // Xác định hàng FYP được giới thiệu
         if (col >= 0) {
             if (referralMil >= 60) {
                 supportMil = [5.0, 10.0, 15.0, 20.0][col];
             } else if (referralMil >= 40) {
-                supportMil = [4.5,  7.0, 10.0, 18.0][col];
+                supportMil = [4.5, 7.0, 10.0, 18.0][col];
             } else if (referralMil >= 20) {
-                supportMil = [3.0,  5.0,  7.0, 15.0][col];
+                supportMil = [3.0, 5.0, 7.0, 15.0][col];
             }
         }
     }
@@ -203,13 +201,13 @@ export function calculateStarFCSupport(fypRaw, numContracts, referralFypRaw, mon
 /**
  * Tính thưởng Shinhan Partner (FC).
  * @param {string} partner    - Danh hiệu: 'G', 'S', 'E', 'none'
- * @param {string} k2Bracket  - Mức ngưỡng K2
+ * @param {number} k2Pct      - K2 cá nhân thực đạt (%, số thô)
  * @param {number} fypMil     - FYP cá nhân (triệu ₫)
  * @param {number} fycRate    - Tỷ lệ FYC dạng thập phân
  * @returns {number}          - Thưởng Shinhan Partner (triệu ₫)
  */
-export function calculatePartnerBonus(partner, k2Bracket, fypMil, fycRate) {
-    const partnerK2Met = ['70-80', '80+'].includes(k2Bracket);
+export function calculatePartnerBonus(partner, k2Pct, fypMil, fycRate) {
+    const partnerK2Met = safeNum(k2Pct) >= 70;
     if (partner !== 'none' && partnerK2Met) {
         const pRate = { G: 0.10, S: 0.15, E: 0.20 }[partner] || 0;
         return roundMil(fypMil * fycRate * pRate);
@@ -242,7 +240,7 @@ export function calculateMDRTBonus(mdrt) {
  * @param {number} params.fypMil         - FYP cá nhân tháng (triệu ₫)
  * @param {number} params.fycRate        - Tỷ lệ FYC dạng thập phân
  * @param {number} params.k2Coef         - Hệ số K2
- * @param {string} params.k2Bracket      - Mức ngưỡng K2
+ * @param {number} params.k2Pct          - K2 cá nhân thực đạt (%, số thô)
  * @param {string} params.aitom          - Cấp AiTOM
  * @param {string} params.partner        - Danh hiệu Shinhan Partner ('G', 'S', 'E', 'none')
  * @param {boolean} params.mdrt          - Đạt MDRT
@@ -260,7 +258,7 @@ export function calculatePersonalBonus({
     fypMil,
     fycRate,
     k2Coef,
-    k2Bracket,
+    k2Pct,
     aitom,
     partner,
     mdrt,
@@ -299,7 +297,7 @@ export function calculatePersonalBonus({
     }
 
     // Shinhan Partner
-    const partnerBonus = calculatePartnerBonus(partner, k2Bracket, fypMil, fycRate);
+    const partnerBonus = calculatePartnerBonus(partner, k2Pct, fypMil, fycRate);
 
     // MDRT
     const mdrtBonus = calculateMDRTBonus(mdrt);

@@ -21,21 +21,19 @@ function roundMil(val) {
 
 /**
  * Tra hệ số K2 cho chức danh SM+ (SM / EM / ERM / IRM).
- * @param {string} bracket   - Mức ngưỡng K2 ('70+', '60-70', ...)
+ * @param {number} k2Pct     - K2 Toàn Nhóm thực đạt (%, số thô, 0-150)
  * @param {string} monthMode - Tháng hoạt động
  * @returns {number}
  */
-export function getK2Coefficient_SM(bracket, monthMode) {
+export function getK2Coefficient_SM(k2Pct, monthMode) {
     const isM12Plus = ['13+'].includes(monthMode);
-    switch (bracket) {
-        case '<35':   return 0.50;
-        case '35-45': return 0.50;
-        case '45-50': return 0.60;
-        case '50-60': return 0.80;
-        case '60-70': return 1.00;
-        case '70+':   return isM12Plus ? 1.20 : 1.00;
-        default:      return 1.00;
-    }
+    const pct = safeNum(k2Pct);
+    if (pct < 35) return pct / 100;
+    if (pct < 45) return 0.50;
+    if (pct < 50) return 0.60;
+    if (pct < 60) return 0.80;
+    if (pct < 70) return 1.00;
+    return isM12Plus ? 1.20 : 1.00;
 }
 
 // ============================================================
@@ -61,9 +59,12 @@ export function calcSMCompletionRate(totalFypMil, targetMil, smTargetRatio) {
 
 /**
  * Tính phí đào tạo đội ngũ SM+.
+ * Spec: SHL-FCS-2026-0009 Mục 2.1 — hai khoản CỘNG riêng:
+ *   Phí đào tạo Kinh doanh (75%) = 75% x Phí chuẩn x Hệ số FYP x Hệ số K2
+ *   Phí đào tạo Hoạt động (25%) = 25% x Phí chuẩn x Hệ số hoạt động (Bảng 7) — KHÔNG nhân K2.
  * @param {string} role               - 'SM' | 'EM' | 'ERM' | 'IRM'
  * @param {number} completionRate     - Tỷ lệ hoàn thành chỉ tiêu (thập phân)
- * @param {number} activeHeadcountSm  - Số lượt hoạt động SM+
+ * @param {number} activeHeadcountSm  - Số lượt hoạt động Nhóm trực tiếp
  * @param {number} k2Coef             - Hệ số K2
  * @returns {number}                  - Phí đào tạo (triệu ₫)
  */
@@ -77,8 +78,17 @@ export function calculateSMTrainingFee(role, completionRate, activeHeadcountSm, 
     else if (completionRate < 1.15) heSoFyp = 1.00;
     else                            heSoFyp = 1.20;
 
-    const hsHeadcount = safeNum(activeHeadcountSm) >= 1 ? 1.0 : 0.0;
-    return roundMil(phiChuan * (0.75 * heSoFyp + 0.25 * hsHeadcount) * k2Coef);
+    // Bảng 7 — Hệ số hoạt động (theo số lượt hoạt động Nhóm trực tiếp)
+    const activeCount = safeNum(activeHeadcountSm);
+    let heSoHoatDong = 0;
+    if      (activeCount < 3) heSoHoatDong = 0;
+    else if (activeCount < 5) heSoHoatDong = 0.25;
+    else if (activeCount < 7) heSoHoatDong = 0.50;
+    else                      heSoHoatDong = 1.00;
+
+    const phiKinhDoanh = 0.75 * heSoFyp * phiChuan * k2Coef;
+    const phiHoatDong  = 0.25 * heSoHoatDong * phiChuan; // KHÔNG nhân k2Coef
+    return roundMil(phiKinhDoanh + phiHoatDong);
 }
 
 // ============================================================

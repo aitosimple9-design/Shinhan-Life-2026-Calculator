@@ -1,12 +1,15 @@
 import React, { useEffect } from 'react';
 import { useCalculatorState, useCalculatorDispatch } from '../../context/CalculatorContext.jsx';
 import VndInput from '../common/VndInput.jsx';
+import Toggle from '../common/Toggle.jsx';
 import { formatVND } from '../../utils/format.js';
 
 const SM_MONTHS = [
   { label:'M1', value:'1' },{ label:'M2', value:'2' },{ label:'M3', value:'3' },
   { label:'M4-M12', value:'4-12' },{ label:'M13+', value:'13+' }
 ];
+
+const AITOM_GRADES = ['S', 'A', 'B', 'C', 'D'];
 
 const SM_BASE_TARGETS = { SM: 3200000000, EM: 8000000000, ERM: 16000000000, IRM: 28000000000 };
 const SM_MONTH_COEFS  = { '1': 0.04, '2': 0.05, '3': 0.06, '4-12': 0.0945 };
@@ -81,36 +84,36 @@ export default function SmLayout() {
         </h2>
 
         {/* Chỉ Tiêu Doanh Số */}
-        <div className="mb-4 p-4 bg-gradient-to-r from-teal-500/10 to-teal-600/5 rounded-xl border border-teal-300/40 dark:border-teal-600/30">
-          <label className="text-xs font-bold uppercase tracking-widest text-teal-600 dark:text-teal-400 flex items-center gap-2 mb-3">
+        <div className="mb-3 p-3 bg-gradient-to-r from-teal-500/10 to-teal-600/5 rounded-xl border border-teal-300/40 dark:border-teal-600/30">
+          <label className="text-xs font-bold text-teal-600 dark:text-teal-400 flex items-center gap-2 mb-1.5">
             <i className="fa-solid fa-bullseye"></i>
-            Chỉ Tiêu Doanh Số Tháng
-            <span className="text-[10px] bg-teal-500 text-white px-2 py-0.5 rounded-full font-bold">Tự động</span>
+            Chỉ tiêu doanh số tháng
+            <span className="text-[10px] uppercase tracking-wide bg-teal-500 text-white px-2 py-0.5 rounded-full font-bold">Tự động</span>
           </label>
           <div className="relative">
             <input
               type="text" id="sm-target-number" readOnly
               value={targetFmt}
-              className="w-full pl-5 pr-14 py-4 text-2xl font-extrabold tracking-wide min-h-[64px] rounded-xl
+              className="tabular-num w-full pl-4 pr-12 py-2.5 text-lg font-extrabold tracking-wide rounded-xl
                 text-teal-700 dark:text-teal-300 bg-white dark:bg-slate-800
                 border-2 border-teal-400/50 dark:border-teal-500/40 focus:outline-none cursor-default"
             />
-            <span className="absolute right-5 top-1/2 -translate-y-1/2 text-teal-500 dark:text-teal-400 font-bold text-lg">₫</span>
+            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-teal-500 dark:text-teal-400 font-bold">₫</span>
           </div>
         </div>
 
-        {/* 3-col: Tỷ lệ | DS thực tế | Số lượt */}
+        {/* 3-col: Tỷ lệ | DS thực tế | Số lượt — nổi bật giống style FC/SL */}
         <div className="grid grid-cols-3 gap-3 mb-4">
           {/* Tỷ lệ HT */}
           <div>
-            <label className="input-label">Tỷ lệ HT (%)</label>
+            <label className="text-xs font-medium text-slate-700 dark:text-slate-300 mb-1 block">Tỷ lệ HT (%)</label>
             <div className="relative">
               <input
                 type="number" id="sm-target-ratio"
                 value={state.smTargetRatio}
                 readOnly={state.smTargetModeUnlocked}
-                className={`input-base pr-8 font-bold text-teal-700 dark:text-teal-400
-                  ${state.smTargetModeUnlocked ? '!bg-slate-200 dark:!bg-slate-900/40 cursor-not-allowed' : ''}`}
+                className={`w-full bg-teal-50 dark:bg-teal-500/10 border-2 border-teal-200 dark:border-teal-500/30 text-teal-700 dark:text-teal-300 pl-3 pr-6 py-2 text-sm font-extrabold rounded-lg outline-none focus:ring-4 focus:ring-teal-500/40 focus:border-teal-400 transition-all duration-200 ease-out
+                  ${state.smTargetModeUnlocked ? '!bg-slate-200 dark:!bg-slate-900/40 !border-slate-300 dark:!border-slate-700 !text-slate-500 cursor-not-allowed' : ''}`}
                 onChange={e => {
                   if (state.smTargetModeUnlocked) return;
                   const ratio     = Number(e.target.value) || 0;
@@ -118,13 +121,13 @@ export default function SmLayout() {
                   dispatchBatch({ smTargetRatio: ratio, smActualRevenue: newActual });
                 }}
               />
-              <span className="absolute right-3 top-3.5 text-slate-400 text-xs">%</span>
+              <span className="absolute right-2 top-1/2 -translate-y-1/2 text-teal-500 dark:text-teal-400 text-xs font-medium">%</span>
             </div>
           </div>
 
           {/* DS Thực tế */}
           <div>
-            <label className="input-label flex items-center justify-between">
+            <label className="text-xs font-medium text-slate-700 dark:text-slate-300 mb-1 flex items-center justify-between">
               DS Thực tế
               <button
                 id="sm-unlock-btn"
@@ -146,58 +149,45 @@ export default function SmLayout() {
                       : 0;
                     dispatchBatch({ smActualRevenue: num, smTargetRatio: ratio });
                   }}
-                  className="vnd-input-base font-bold text-teal-700 dark:text-teal-400 text-xs pl-2 pr-6 w-full"
+                  className="tabular-num w-full bg-teal-50 dark:bg-teal-500/10 border-2 border-teal-200 dark:border-teal-500/30 text-teal-700 dark:text-teal-300 pl-2 pr-6 py-2 text-xs font-extrabold rounded-lg focus:ring-4 focus:ring-teal-500/40 focus:border-teal-400 transition-all duration-200 ease-out"
                 />
               ) : (
                 <input
                   type="text" id="sm-actual-number" readOnly
                   value={actualFmt}
-                  className="vnd-input-base !bg-slate-200 dark:!bg-slate-900/40 cursor-not-allowed font-bold text-teal-700 dark:text-teal-400 text-xs pl-2 pr-6 w-full"
+                  className="tabular-num w-full !bg-slate-200 dark:!bg-slate-900/40 border-2 border-slate-300 dark:border-slate-700 cursor-not-allowed text-slate-500 pl-2 pr-6 py-2 text-xs font-extrabold rounded-lg"
                 />
               )}
-              <span className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 text-xs">₫</span>
+              <span className="absolute right-2 top-1/2 -translate-y-1/2 text-teal-500 dark:text-teal-400 text-xs font-medium">₫</span>
             </div>
           </div>
 
           {/* Số lượt HĐ */}
           <div>
-            <label className="input-label">Số lượt HĐ</label>
+            <label className="text-xs font-medium text-slate-700 dark:text-slate-300 mb-1 block">Số lượt HĐ</label>
             <div className="relative">
               <input
                 type="number" id="active-headcount-sm" value={state.activeHeadcountSm} min="1" max="999"
                 onChange={e => dispatch1('activeHeadcountSm', parseInt(e.target.value) || 1)}
-                className="input-base pr-10 font-bold text-teal-700 dark:text-teal-400"
+                className="w-full bg-teal-50 dark:bg-teal-500/10 border-2 border-teal-200 dark:border-teal-500/30 text-teal-700 dark:text-teal-300 pl-3 pr-10 py-2 text-sm font-extrabold rounded-lg outline-none focus:ring-4 focus:ring-teal-500/40 focus:border-teal-400 transition-all duration-200 ease-out"
               />
-              <span className="absolute right-3 top-3.5 text-slate-400 text-xs">lượt</span>
+              <span className="absolute right-2 top-1/2 -translate-y-1/2 text-teal-500 dark:text-teal-400 text-xs font-medium">lượt</span>
             </div>
           </div>
         </div>
 
-        {/* FYC Rate SM+ */}
-        <div className="mb-4">
-          <label className="input-label">Tỷ lệ Hoa hồng FYC (%)</label>
-          <div className="relative">
-            <input
-              type="number" id="fyc-rate-sm" value={state.fycRateSm}
-              onChange={e => dispatch1('fycRateSm', Number(e.target.value) || 30)}
-              className="input-base pr-8"
-            />
-            <span className="absolute right-4 top-3.5 text-slate-400">%</span>
-          </div>
-        </div>
-
-        {/* FYP Nhóm TT */}
-        <div className="mb-3">
-          <label className="input-label">FYP Nhóm Trực Tiếp (VNĐ)</label>
+        {/* FYP Nhóm TT — nổi bật giống FYP Cá Nhân (FC) */}
+        <div className="mb-6">
+          <label className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 block">FYP Nhóm Trực Tiếp</label>
           <div className="relative">
             <VndInput
               id="fyp-team-direct-sm"
               value={state.fypTeamDirectSm}
               onChange={v => dispatch1('fypTeamDirectSm', v)}
               placeholder="Ví dụ: 5.000.000.000"
-              className="vnd-input-large w-full pl-4 pr-14 py-4 text-lg font-bold"
+              className="w-full bg-teal-50 dark:bg-teal-500/10 border-2 border-teal-200 dark:border-teal-500/30 text-teal-700 dark:text-teal-300 pl-4 pr-16 py-4 text-lg font-extrabold rounded-xl focus:ring-4 focus:ring-teal-500/40 focus:border-teal-400 transition-all duration-200 ease-out"
             />
-            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 font-medium">₫</span>
+            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-teal-500 dark:text-teal-400 font-medium">₫</span>
           </div>
         </div>
 
@@ -256,28 +246,25 @@ export default function SmLayout() {
           </div>
         )}
 
-        {/* SM+ Quarterly Bonus */}
-        <div id="sm-quarter-section" className="mb-2 mt-4 p-4 bg-slate-100 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-white/[0.05]">
-          <label className="personal-sales-toggle-base !mb-0 !bg-transparent !border-0 !p-0 cursor-pointer flex items-center justify-between">
+        {/* SM+ Quarterly Bonus — nổi bật giống panel Thưởng Quý của FC */}
+        <div id="sm-quarter-section" className="mt-6">
+          <div className="flex items-center justify-between mb-4">
             <div>
               <div className="font-medium text-sm text-slate-800 dark:text-slate-200">Tính Phí Khai Thác Quý (SM+)</div>
               <div className="text-xs text-slate-500 mt-0.5">Thưởng quý dựa trên FYP nhóm (Nhập để ước tính)</div>
             </div>
-            <div className="relative flex items-center ml-4 shrink-0">
-              <input
-                type="checkbox" id="has-sm-quarter-bonus" className="peer sr-only"
-                checked={state.hasSmQuarterBonus}
-                onChange={e => dispatch1('hasSmQuarterBonus', e.target.checked)}
-              />
-              <div className="toggle-track peer-checked:bg-teal-600 w-11 h-6 bg-slate-200 rounded-full relative"></div>
-            </div>
-          </label>
+            <Toggle
+              id="has-sm-quarter-bonus"
+              checked={state.hasSmQuarterBonus}
+              onChange={v => dispatch1('hasSmQuarterBonus', v)}
+            />
+          </div>
 
           {state.hasSmQuarterBonus && (
-            <div id="sm-quarter-fields" className="mt-4 pt-4 border-t border-slate-200 dark:border-white/[0.05] space-y-3 slide-in">
+            <div id="sm-quarter-fields" className="bg-teal-50 dark:bg-teal-950/20 p-4 rounded-xl border-2 border-teal-200 dark:border-teal-800/40 space-y-3 slide-in">
               {/* FYP TT Quý */}
               <div>
-                <label className="input-label">FYP Nhóm TT Quý (VNĐ)</label>
+                <label className="block text-xs text-teal-700 dark:text-teal-400 font-medium mb-1">FYP Nhóm TT Quý (VNĐ)</label>
                 <div className="relative">
                   <VndInput
                     id="fyp-team-quarter-sm-number"
@@ -296,7 +283,7 @@ export default function SmLayout() {
                   <div className={`grid grid-cols-1 gap-3 ${showL2 ? 'sm:grid-cols-2' : ''}`}>
                     {/* QL1 */}
                     <div id="sm-quarter-l1-col" className={!showL2 ? 'sm:col-span-2' : ''}>
-                      <label className="input-label">FYP Nhóm GT L1 Quý (VNĐ)</label>
+                      <label className="block text-xs text-teal-700 dark:text-teal-400 font-medium mb-1">FYP Nhóm GT L1 Quý (VNĐ)</label>
                       <div className="relative">
                         <VndInput
                           id="fyp-quarter-indirect-sm-l1"
@@ -311,7 +298,7 @@ export default function SmLayout() {
                     {/* QL2 */}
                     {showL2 && (
                       <div id="sm-quarter-l2-col">
-                        <label className="input-label">FYP Nhóm GT L2 Quý (VNĐ)</label>
+                        <label className="block text-xs text-teal-700 dark:text-teal-400 font-medium mb-1">FYP Nhóm GT L2 Quý (VNĐ)</label>
                         <div className="relative">
                           <VndInput
                             id="fyp-quarter-indirect-sm-l2"
@@ -327,7 +314,7 @@ export default function SmLayout() {
                     {/* QL3 */}
                     {showL3 && (
                       <div id="sm-quarter-l3-col" className="sm:col-span-2">
-                        <label className="input-label">FYP Nhóm GT L3 Quý (VNĐ)</label>
+                        <label className="block text-xs text-teal-700 dark:text-teal-400 font-medium mb-1">FYP Nhóm GT L3 Quý (VNĐ)</label>
                         <div className="relative">
                           <VndInput
                             id="fyp-quarter-indirect-sm-l3"
@@ -346,6 +333,17 @@ export default function SmLayout() {
             </div>
           )}
         </div>
+
+        {/* Tỷ lệ Hoa hồng FYC (%) — nổi bật giống FC, đặt cuối cùng theo đúng vị trí của FC */}
+        <div className="mt-6">
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">Tỷ lệ Hoa hồng FYC (%)</label>
+          <input
+            type="number" id="fyc-rate-sm"
+            className="w-full bg-teal-50 dark:bg-teal-500/10 border-2 border-teal-200 dark:border-teal-500/30 text-teal-700 dark:text-teal-300 text-base font-extrabold rounded-lg px-3 py-2.5 outline-none focus:ring-4 focus:ring-teal-500/40 focus:border-teal-400 transition-all duration-200 ease-out"
+            value={state.fycRateSm}
+            onChange={e => dispatch1('fycRateSm', Number(e.target.value) || 30)}
+          />
+        </div>
       </div>
 
       {/* SM has personal sales → personal section */}
@@ -362,17 +360,87 @@ function SmPersonalSection({ state, dispatch1 }) {
       <h2 className="card-title">
         <i className="fa-solid fa-chart-line text-teal-600 dark:text-teal-400"></i> Chỉ Số Cá Nhân
       </h2>
-      <div>
-        <label className="input-label">FYP Cá Nhân (VNĐ)</label>
+
+      {/* FYP — giống hệt style FC */}
+      <div className="mb-6">
+        <div className="flex justify-between items-center mb-3">
+          <label className="text-sm font-medium text-slate-700 dark:text-slate-300">FYP Cá Nhân</label>
+          <span className="text-teal-700 dark:text-teal-400 font-bold text-sm">
+            {(state.fyp / 1_000_000).toFixed(1)} tr
+          </span>
+        </div>
         <div className="relative">
           <VndInput
             id="fyp-number-input-sm"
             value={state.fyp}
             onChange={v => dispatch1('fyp', v)}
             placeholder="Ví dụ: 30.000.000"
-            className="vnd-input-large w-full pl-4 pr-16 py-4 text-lg font-bold"
+            className="w-full bg-teal-50 dark:bg-teal-500/10 border-2 border-teal-200 dark:border-teal-500/30 text-teal-700 dark:text-teal-300 pl-4 pr-16 py-4 text-lg font-extrabold rounded-xl focus:ring-4 focus:ring-teal-500/40 focus:border-teal-400 transition-all duration-200 ease-out"
           />
-          <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 font-medium">₫</span>
+          <span className="absolute right-4 top-1/2 -translate-y-1/2 text-teal-500 dark:text-teal-400 font-medium">₫</span>
+        </div>
+        <p className="text-xs text-slate-400 dark:text-slate-500 mt-1.5">Nhập số nguyên, hệ thống tự định dạng.</p>
+      </div>
+
+      {/* Thưởng Quý cá nhân — giống hệt panel Thưởng Quý của FC */}
+      <div id="sm-personal-quarter-section" className="mt-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className="font-medium text-sm text-slate-800 dark:text-slate-200">Tính Thưởng Quý cá nhân</div>
+          <Toggle
+            id="has-quarter-bonus-sm"
+            checked={state.hasQuarterBonus}
+            onChange={v => dispatch1('hasQuarterBonus', v)}
+          />
+        </div>
+
+        {state.hasQuarterBonus && (
+          <div className="grid grid-cols-2 gap-4 bg-teal-50 dark:bg-teal-950/20 p-4 rounded-xl border-2 border-teal-200 dark:border-teal-800/40 slide-in">
+            <div>
+              <label className="block text-xs text-teal-700 dark:text-teal-400 font-medium mb-1">FYP Quý Cá nhân (VNĐ)</label>
+              <div className="relative">
+                <VndInput
+                  id="fyp-quarter-number-sm"
+                  value={state.fypQuarter}
+                  onChange={v => dispatch1('fypQuarter', v)}
+                  placeholder="0"
+                  className="vnd-input-base text-sm py-2 w-full pl-3 pr-6"
+                />
+              </div>
+            </div>
+            <div>
+              <label className="block text-xs text-teal-700 dark:text-teal-400 font-medium mb-1">Số tháng HĐ</label>
+              <div className="relative">
+                <select
+                  id="quarter-active-months-sm"
+                  value={state.quarterActiveMonths}
+                  onChange={e => dispatch1('quarterActiveMonths', parseInt(e.target.value))}
+                  className="w-full appearance-none bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs rounded-lg border-2 border-teal-700 dark:border-teal-500 pl-3 pr-8 py-2 cursor-pointer focus:outline-none focus:ring-4 focus:ring-teal-500/40 transition-all duration-150"
+                >
+                  <option value="1">1 tháng (80%)</option>
+                  <option value="2">2 tháng (100%)</option>
+                  <option value="3">3 tháng (120%)</option>
+                </select>
+                <i className="fa-solid fa-chevron-down text-white text-xs absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* AiTOM Grade — ảnh hưởng trực tiếp đến Thưởng năng suất tháng (giống hệt FC) */}
+      <div id="aitom-container" className="mt-6">
+        <label className="input-label">AiTOM Grade</label>
+        <div className="bg-slate-950/40 p-1.5 rounded-xl border border-white/[0.04] grid grid-cols-5 gap-1.5" id="aitom-btn-group-sm">
+          {AITOM_GRADES.map(g => (
+            <button
+              key={g}
+              data-grade={g}
+              onClick={() => dispatch1('aitom', g)}
+              className={`aitom-btn py-2.5 min-h-[44px] rounded-lg text-sm font-bold transition-all duration-200 active:scale-95 ${state.aitom === g ? 'active' : ''}`}
+            >
+              {g}
+            </button>
+          ))}
         </div>
       </div>
     </div>

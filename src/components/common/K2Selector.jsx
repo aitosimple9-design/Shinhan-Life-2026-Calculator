@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo } from 'react';
 import { useCalculatorState, useCalculatorDispatch } from '../../context/CalculatorContext.jsx';
-import { K2_OPTIONS, K2_DEFAULT_BRACKET, getK2Coefficient } from '../../logic/calculator.js';
+import { K2_DEFAULT_PCT, getK2Coefficient } from '../../logic/calculator.js';
 import { getGroup } from '../../logic/role-groups.js';
 
 export default function K2Selector() {
@@ -8,16 +8,15 @@ export default function K2Selector() {
   const dispatch = useCalculatorDispatch();
   const role = state.role;
   const group = getGroup(role);
-  
-  const options = K2_OPTIONS[group];
+
   const curVal = state.k2Bracket;
-  const hasVal = options.some(o => o.value === curVal);
+  const hasVal = typeof curVal === 'number' && Number.isFinite(curVal);
 
   useEffect(() => {
     if (!hasVal) {
-      dispatch({ 
-        type: 'UPDATE_STATE', 
-        payload: { key: 'k2Bracket', value: K2_DEFAULT_BRACKET[group] } 
+      dispatch({
+        type: 'UPDATE_STATE',
+        payload: { key: 'k2Bracket', value: K2_DEFAULT_PCT[group] }
       });
     }
   }, [hasVal, group, dispatch]);
@@ -29,26 +28,40 @@ export default function K2Selector() {
   }, [group]);
 
   const coef = getK2Coefficient(state);
-  let badgeColor = 'text-red-400';
-  if (coef >= 1.0) badgeColor = 'text-teal-500';
-  else if (coef >= 0.65) badgeColor = 'text-yellow-500';
+  // Tông màu theo tầng hệ số — nổi bật + tạo điểm nhấn theo mức đang chọn
+  let tier = { text: 'text-red-500 dark:text-red-400', ring: 'focus-within:ring-red-500/40 focus-within:border-red-400', box: 'bg-red-50 dark:bg-red-500/10 border-red-200 dark:border-red-500/30', num: 'text-red-600 dark:text-red-400' };
+  if (coef >= 1.0) tier = { text: 'text-teal-600 dark:text-teal-400', ring: 'focus-within:ring-teal-500/40 focus-within:border-teal-400', box: 'bg-teal-50 dark:bg-teal-500/10 border-teal-200 dark:border-teal-500/30', num: 'text-teal-700 dark:text-teal-300' };
+  else if (coef >= 0.65) tier = { text: 'text-amber-600 dark:text-amber-400', ring: 'focus-within:ring-amber-500/40 focus-within:border-amber-400', box: 'bg-amber-50 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/30', num: 'text-amber-700 dark:text-amber-300' };
 
   return (
     <div>
-      <label className="block text-slate-400 text-sm font-medium mb-1">Hệ số K2</label>
-      <select 
-        className="w-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block p-2.5 transition-colors"
-        value={curVal}
-        onChange={(e) => dispatch({ type: 'UPDATE_STATE', payload: { key: 'k2Bracket', value: e.target.value } })}
-      >
-        {options.map(o => (
-          <option key={o.value} value={o.value}>{o.label}</option>
-        ))}
-      </select>
-      <p className="text-xs text-slate-500 mt-1.5 leading-relaxed">{subtitle}</p>
-      <div className={`mt-2 text-right text-xs font-semibold ${badgeColor}`}>
-        Hệ số K2 áp dụng: ×{coef.toFixed(2)}
+      <div className="flex items-center justify-between mb-1.5">
+        <span className="text-xs font-bold text-slate-500 dark:text-slate-400">Hệ số K2</span>
+        <span className="text-[11px] text-slate-400 dark:text-slate-500">{subtitle}</span>
       </div>
+      <label className={`flex items-center gap-1.5 w-full border-2 rounded-lg px-3 py-2.5 cursor-text focus-within:ring-4 transition-all duration-200 ease-out ${tier.box} ${tier.ring}`}>
+        <span className="text-sm text-slate-500 dark:text-slate-400 shrink-0">K2 ≥</span>
+        <span className="flex items-baseline shrink-0">
+          <input
+            type="text"
+            inputMode="numeric"
+            pattern="[0-9]*"
+            style={{ width: `${Math.max(1, String(typeof curVal === 'number' ? curVal : '').length)}ch` }}
+            className={`bg-transparent text-base font-extrabold outline-none ${tier.num}`}
+            value={typeof curVal === 'number' ? curVal : ''}
+            onChange={(e) => {
+              const digits = e.target.value.replace(/\D/g, '');
+              let v = digits === '' ? 0 : Number(digits);
+              if (v > 150) v = 150;
+              dispatch({ type: 'UPDATE_STATE', payload: { key: 'k2Bracket', value: v } });
+            }}
+          />
+          <span className={`text-sm font-bold ml-0.5 ${tier.num} opacity-70`}>%</span>
+        </span>
+        <span className="flex-1"></span>
+        <span className={`text-xs font-bold shrink-0 ${tier.text}`}>(Hệ số ×{coef.toFixed(2)})</span>
+        <i className={`fa-solid fa-chevron-down text-xs shrink-0 ${tier.text}`}></i>
+      </label>
     </div>
   );
 }

@@ -20,6 +20,8 @@ import {
     calculateSMFees,
 } from './rules/sm-rules.js';
 
+import { isFC, isSL, isSM } from './role-groups.js';
+
 // ---- Defensive helper ----
 /**
  * Chuyển đổi giá trị sang Number an toàn.
@@ -41,34 +43,8 @@ function roundMil(val) {
 // K2 OPTIONS — Config dùng cho UI (không đụng DOM)
 // ============================================================
 
-export const K2_OPTIONS = {
-    FC: [
-        { value: '<50', label: 'K2 < 50%' },
-        { value: '50-60', label: 'K2 ≥ 50%' },
-        { value: '60-65', label: 'K2 ≥ 60%' },
-        { value: '65-70', label: 'K2 ≥ 65%' },
-        { value: '70-80', label: 'K2 ≥ 70%' },
-        { value: '80+', label: 'K2 ≥ 80%' },
-    ],
-    SL: [
-        { value: '<40', label: 'K2 < 40%' },
-        { value: '40-50', label: 'K2 ≥ 40%' },
-        { value: '50-60', label: 'K2 ≥ 50%' },
-        { value: '60-65', label: 'K2 ≥ 60%' },
-        { value: '65-75', label: 'K2 ≥ 65%' },
-        { value: '75+', label: 'K2 ≥ 75%' },
-    ],
-    SM: [
-        { value: '<35', label: 'K2 < 35%' },
-        { value: '35-45', label: 'K2 ≥ 35%' },
-        { value: '45-50', label: 'K2 ≥ 45%' },
-        { value: '50-60', label: 'K2 ≥ 50%' },
-        { value: '60-70', label: 'K2 ≥ 60%' },
-        { value: '70+', label: 'K2 ≥ 70%' },
-    ],
-};
-
-export const K2_DEFAULT_BRACKET = { FC: '80+', SL: '75+', SM: '70+' };
+// FC, SL+ và SM+ đều dùng K2 dạng số thô (nhập trực tiếp %), không xếp nhóm bracket.
+export const K2_DEFAULT_PCT = { FC: 80, SL: 75, SM: 70 };
 
 // ============================================================
 // K2 ROUTER — tra hệ số K2 theo role hiện tại
@@ -82,13 +58,11 @@ export const K2_DEFAULT_BRACKET = { FC: '80+', SL: '75+', SM: '70+' };
  */
 export function getK2Coefficient(state) {
     const role = state.role;
-    const bracket = state.k2Bracket;
+    const k2Pct = state.k2Bracket;
     const month = state.monthMode;
-    const isAgent = ['FC', 'StarFC'].includes(role);
-    const isSL = ['GSL', 'SSL', 'ESL'].includes(role);
-    if (isAgent) return getK2Coefficient_FC(bracket, month);
-    if (isSL) return getK2Coefficient_SL(bracket, month);
-    return getK2Coefficient_SM(bracket, month);
+    if (isFC(role)) return getK2Coefficient_FC(k2Pct, month);
+    if (isSL(role)) return getK2Coefficient_SL(k2Pct, month);
+    return getK2Coefficient_SM(k2Pct, month);
 }
 
 // ============================================================
@@ -130,10 +104,10 @@ export function calculateIncome(state, overrideFypMillions = null) {
 
     let smDerived = null;
 
-    const isAgent = ['FC', 'StarFC'].includes(role);
-    const isSL = ['GSL', 'SSL', 'ESL'].includes(role);
-    const isSM = ['SM', 'EM', 'ERM', 'IRM'].includes(role);
-    const calcPersonal = isAgent || ((isSL || isSM) && state.hasPersonalSales);
+    const isAgent = isFC(role);
+    const isSlRole = isSL(role);
+    const isSmRole = isSM(role);
+    const calcPersonal = isAgent || ((isSlRole || isSmRole) && state.hasPersonalSales);
 
     // ======================================================
     // NHÓM 1: Tư vấn viên (FC / StarFC) — hoặc SL/SM+ có DS cá nhân
@@ -144,7 +118,7 @@ export function calculateIncome(state, overrideFypMillions = null) {
             fypMil,
             fycRate,
             k2Coef,
-            k2Bracket: state.k2Bracket,
+            k2Pct: state.k2Bracket,
             aitom: state.aitom,
             partner: state.partner,
             mdrt: state.mdrt,
@@ -170,7 +144,7 @@ export function calculateIncome(state, overrideFypMillions = null) {
     // ======================================================
     // NHÓM 2: Quản lý cấp trung — SL (GSL, SSL, ESL)
     // ======================================================
-    if (isSL) {
+    if (isSlRole) {
         const slResult = calculateSLFees({
             role,
             slFycRate: safeNum(state.fycRateSl) / 100,
@@ -199,7 +173,7 @@ export function calculateIncome(state, overrideFypMillions = null) {
     // ======================================================
     // NHÓM 3: Quản lý cấp cao — SM+ (SM, EM, ERM, IRM)
     // ======================================================
-    if (isSM) {
+    if (isSmRole) {
         const fypL1Mil = (role === 'SM') ? 0 : safeNum(state.fypIndirectSmL1) / 1_000_000;
         const fypL2Mil = (['SM', 'EM'].includes(role)) ? 0 : safeNum(state.fypIndirectSmL2) / 1_000_000;
         const fypL3Mil = (['SM', 'EM', 'ERM'].includes(role)) ? 0 : safeNum(state.fypIndirectSmL3) / 1_000_000;
