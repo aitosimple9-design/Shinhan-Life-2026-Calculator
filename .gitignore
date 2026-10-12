@@ -29,3 +29,6 @@ dist-ssr
 # Python bytecode
 __pycache__/
 *.pyc
+
+# Cai dat ca nhan cua Claude Code
+.claude/settings.local.json
