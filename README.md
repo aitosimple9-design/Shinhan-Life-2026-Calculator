@@ -31,4 +31,16 @@ Cấu trúc hiện tại: [`supabase/schema_current.md`](supabase/schema_current
 
 ## Quy trình đóng góp
 
-Làm trên nhánh riêng → mở Pull Request vào `main` → CI (`.github/workflows/ci.yml`: lint, test, build) phải xanh → merge.
+Làm trên nhánh riêng → mở Pull Request vào `main` → CI tự chạy → được duyệt → merge. Không push thẳng vào `main`.
+
+CI (`.github/workflows/ci.yml`) gồm 4 job song song: **Lint**, **Test** (vitest: luật FC/SL/SM, bộ điều phối, phân quyền, định dạng tiền), **Build**, **Security** (`npm audit`, chặn commit `.env`/`service_role`). Job **CI passed** gom kết quả. Dependabot (`.github/dependabot.yml`) tự mở PR cập nhật gói hằng tuần. Chạy cục bộ trước khi push: `npm run lint && npm test && npm run build`.
+
+### Cài khóa nhánh `main` (làm 1 lần trên GitHub, quyền admin)
+
+`Settings → Rules → Rulesets → New branch ruleset`, target `main`, bật:
+
+- **Restrict deletions** và **Block force pushes**
+- **Require a pull request before merging** (1 approval, *Require review from Code Owners*, *Dismiss stale approvals*)
+- **Require status checks to pass** → thêm check **`CI passed`**, bật *Require branches to be up to date*
+- **Require conversation resolution before merging**
+- Bỏ trống mục *Bypass list* để cả admin cũng phải qua PR

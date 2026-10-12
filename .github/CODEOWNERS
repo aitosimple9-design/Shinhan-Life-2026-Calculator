@@ -1,0 +1,6 @@
+# Người chịu trách nhiệm duyệt. Khi bật "Require review from Code Owners",
+# mọi PR đụng tới các đường dẫn dưới đây đều cần owner duyệt.
+*                       @aitosimple9-design
+/src/logic/             @aitosimple9-design
+/supabase/              @aitosimple9-design
+/.github/               @aitosimple9-design
